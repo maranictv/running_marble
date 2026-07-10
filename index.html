@@ -55,7 +55,7 @@
 
   /* ---- Board ---- */
   #board-wrap{
-    position:relative;width:80%;aspect-ratio:1/1;max-width:640px;margin:0 auto;
+    position:relative;width:83%;aspect-ratio:1/1;max-width:640px;margin:0 auto;
   }
   #board-field{
     position:absolute;inset:5%;
@@ -565,14 +565,14 @@ function renderGame(){
         <div id="cells-layer"></div>
         <div id="token"><div id="token-glow"></div><span style="position:relative;z-index:1;">🏃</span></div>
 
-        <div id="board-help" style="position:absolute; left:50%; top:80%; transform:translate(-50%,-50%); width:80%; z-index:3; text-align:center;">
+        <div id="board-help" style="position:absolute; left:50%; top:73%; transform:translate(-50%,-50%); width:80%; z-index:3; text-align:center;">
           <p class="text-[10px]" style="color:var(--text-dim); white-space:nowrap;">각 이모티콘을 누르면 미션을 확인할 수 있어요</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">주사위는 하루에 1번만 굴릴 수 있어요</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">❓물음표는 5가지 이벤트가 랜덤으로 나와요</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏝️ 무인도는 3번 안에 더블이 나와야 탈출해요</p>
         </div>
 
-        <div style="position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px;z-index:3;">
+        <div style="position:absolute;left:50%;top:35%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px;z-index:3;">
           ${state.adminMode ? `
             <div id="dice1" class="die"></div>
             <button id="roll-btn" class="track-btn px-6 py-2.5 rounded-full font-display font-bold text-white text-sm">
