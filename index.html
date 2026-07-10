@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>러닝 마블 | 마라닉프렌즈 9기</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏃</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#FBFAF7;
+    --bg-elev:#FFFFFF;
+    --bg-elev-2:#F3F1EA;
+    --line:#E7E4DA;
+    --text:#20241F;
+    --text-dim:#767C72;
+    --sunset-1:#FF6B4A;
+    --sunset-2:#FF3E7F;
+    --track:#F5A623;
+    --complete:#1FA97A;
+    --complete-dim:#E4F6EE;
+    --level2:#2F6FED;
+    --level2-dim:#E7EEFD;
+    --level3:#8b5cf6;
+    --level3-dim:#f5f3ff;
+    --level4:#F5A623;
+    --level4-dim:#FDF3E1;
+    --level5:#C9971C;
+    --level5-dim:#FBF3DC;
+  }
+  *{box-sizing:border-box;}
+  html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
+  .font-display{font-family:'Space Grotesk',sans-serif;}
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px;}
+
+  .grain{
+    position:fixed;inset:0;pointer-events:none;opacity:0.02;z-index:1;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .sunset-text{
+    background:linear-gradient(90deg,var(--sunset-1),var(--sunset-2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .track-btn{
+    background:linear-gradient(90deg,var(--sunset-1),var(--sunset-2));
+    transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    box-shadow:0 8px 24px -8px rgba(255,62,127,.5);
+  }
+  .track-btn:active{transform:scale(.96);}
+  .track-btn:disabled{opacity:.4;filter:grayscale(.4);box-shadow:none;transform:none;cursor:not-allowed;}
+
+  /* ---- Board ---- */
+  #board-wrap{
+    position:relative;width:100%;aspect-ratio:1/1;max-width:640px;margin:0 auto;
+  }
+  #board-field{
+    position:absolute;inset:8%;
+    border-radius:38px;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(255,107,74,.06), transparent 55%),
+      radial-gradient(circle at 70% 80%, rgba(255,62,127,.06), transparent 55%),
+      var(--bg-elev-2);
+    border:1px dashed var(--line);
+  }
+  .lane-outline{
+    position:absolute;inset:2%;
+    border-radius:34px;
+    border:2px solid var(--line);
+  }
+  .cell{
+    position:absolute;
+    width:13%;height:13%;
+    transform:translate(-50%,-50%);
+    display:flex;align-items:center;justify-content:center;
+    border-radius:16px;
+    background:var(--bg-elev);
+    border:1.5px solid var(--line);
+    box-shadow:0 2px 8px -2px rgba(32,36,31,.08);
+    cursor:pointer;
+    transition:background .25s ease, border-color .25s ease, transform .2s ease, box-shadow .2s ease;
+    z-index:2;
+  }
+  .cell:hover{transform:translate(-50%,-50%) scale(1.08); border-color:var(--sunset-1); box-shadow:0 6px 16px -4px rgba(255,62,127,.25);}
+  .cell.lvl1{
+    background:var(--complete-dim);
+    border-color:var(--complete);
+  }
+  .cell.lvl1 .cell-num{color:var(--complete);}
+  .cell.lvl2{
+    background:var(--level2-dim);
+    border-color:var(--level2);
+  }
+  .cell.lvl2 .cell-num{color:var(--level2);}
+  .cell.lvl3{
+    background:var(--level3-dim);
+    border-color:var(--level3);
+  }
+  .cell.lvl3 .cell-num{color:var(--level3);}
+  .cell.lvl4{
+    background:var(--level4-dim);
+    border-color:var(--level4);
+  }
+  .cell.lvl4 .cell-num{color:var(--level4);}
+  .cell.lvl5{
+    background:var(--level5-dim);
+    border-color:var(--level5);
+  }
+  .cell.lvl5 .cell-num{color:var(--level5);}
+  .cell.start{
+    background:linear-gradient(135deg,var(--sunset-1),var(--sunset-2));
+    border-color:transparent;
+    box-shadow:0 4px 14px -4px rgba(255,62,127,.45);
+  }
+  .cell.island{
+    background:repeating-linear-gradient(135deg, var(--bg-elev-2), var(--bg-elev-2) 6px, #ECE9DE 6px, #ECE9DE 12px);
+    border:2px dashed #9a9a95;
+  }
+  .cell.event{
+    background: var(--bg-elev);
+    border: 1.5px solid #FF3333; /* 쨍한 빨간색 실선 — 이벤트(물음표) 칸 */
+    box-shadow: 0 2px 8px -2px rgba(32,36,31,.08);
+    cursor:default;
+    pointer-events:none; /* 클릭해도 아무 반응 없음 — 도착해야만 어떤 효과인지 알 수 있음 */
+  }
+  .cell.event .cell-emoji{ color:#FF3333; font-weight:900; }
+  .cell-num{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:11px;font-weight:700;color:var(--text-dim);
+    position:absolute;top:4px;left:7px;
+  }
+  .cell.start .cell-num{color:rgba(255,255,255,.85);}
+  .cell-emoji{font-size:20px; transition:opacity .25s ease;}
+  .cell-check{position:absolute;bottom:3px;right:5px;font-size:11px;}
+  .cell.current{border-color:var(--sunset-1); box-shadow:0 0 0 3px rgba(255,107,74,.18), 0 2px 8px -2px rgba(32,36,31,.08);}
+  .cell.current .cell-emoji{opacity:.3;}
+
+  #token{
+    position:absolute;
+    width:17%;height:17%;
+    transform:translate(-50%,-50%);
+    margin-top:-30px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:38px;
+    z-index:5;
+    pointer-events:none;
+    transition: left .45s cubic-bezier(.4,0,.2,1), top .45s cubic-bezier(.4,0,.2,1);
+    filter:drop-shadow(0 4px 10px rgba(255,107,74,.45));
+  }
+  #token::after{
+    content:'';
+    position:absolute;left:50%;bottom:-9px;
+    transform:translateX(-50%);
+    width:0;height:0;
+    border-left:7px solid transparent;
+    border-right:7px solid transparent;
+    border-top:9px solid var(--sunset-1);
+  }
+  #token-glow{
+    position:absolute;inset:-30%;
+    border-radius:999px;
+    background:radial-gradient(circle, rgba(255,107,74,.28), transparent 70%);
+    animation:pulseGlow 1.6s ease-in-out infinite;
+  }
+  @keyframes pulseGlow{0%,100%{opacity:.6;transform:scale(1);}50%{opacity:1;transform:scale(1.15);}}
+
+  /* ---- Dice ---- */
+  .dice-pair{ display:flex; gap:10px; }
+  .die{
+    width:52px;height:52px;border-radius:13px;
+    background:#FFFFFF;
+    border:1.5px solid var(--line);
+    display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
+    padding:7px;gap:2px;
+    box-shadow:0 6px 18px -6px rgba(32,36,31,.25);
+  }
+  .pip{width:100%;height:100%;border-radius:50%;background:transparent;align-self:center;justify-self:center;}
+  .pip.on{background:var(--text);}
+  .die.rolling{animation:diceSpin .18s linear infinite;}
+  @keyframes diceSpin{
+    0%{transform:rotate(0deg) scale(1);}
+    50%{transform:rotate(180deg) scale(1.12);}
+    100%{transform:rotate(360deg) scale(1);}
+  }
+
+  /* ---- Modal ---- */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(6,8,12,.72);backdrop-filter:blur(6px);
+    display:flex;align-items:flex-end;justify-content:center;z-index:50;
+    animation:fadeIn .2s ease;
+  }
+  @media(min-width:640px){.modal-backdrop{align-items:center;}}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  .modal-card{
+    background:var(--bg-elev);
+    border:1px solid var(--line);
+    border-radius:24px 24px 0 0;
+    width:100%;max-width:420px;
+    padding:28px 24px 24px;
+    animation:slideUp .28s cubic-bezier(.4,0,.2,1);
+  }
+  @media(min-width:640px){.modal-card{border-radius:24px;}}
+  @keyframes slideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+  /* ---- 선물 칸: 보드 미니맵 선택 ---- */
+  .gift-mini-board{
+    position:relative;
+    width:100%;
+    max-width:280px;
+    aspect-ratio:1/1;
+    margin:0 auto;
+  }
+  .gift-mini-cell{
+    position:absolute;
+    width:14%; height:14%;
+    transform:translate(-50%,-50%);
+    display:flex; align-items:center; justify-content:center;
+    border-radius:8px;
+    background:var(--bg-elev-2);
+    border:1.5px solid var(--line);
+    font-size:12px;
+    transition:transform .12s ease, border-color .12s ease;
+  }
+  .gift-mini-cell[data-idx]{ cursor:pointer; }
+  .gift-mini-cell[data-idx]:hover{ transform:translate(-50%,-50%) scale(1.15); border-color:var(--sunset-1); z-index:2; }
+  .gift-mini-cell[data-idx]:active{ transform:translate(-50%,-50%) scale(.95); }
+  .gift-mini-cell.start{ background:linear-gradient(135deg,var(--sunset-1),var(--sunset-2)); border-color:transparent; }
+  .gift-mini-cell.island{ background:repeating-linear-gradient(135deg, var(--bg-elev-2), var(--bg-elev-2) 4px, #ECE9DE 4px, #ECE9DE 8px); border:1.5px dashed #9a9a95; }
+  .gift-mini-cell.event{ background:#FFFFFF; border:1.5px solid #FF3333; color:#FF3333; font-weight:900; }
+  .gift-mini-cell.lvl1{ background:var(--complete-dim); border-color:var(--complete); }
+  .gift-mini-cell.lvl2{ background:var(--level2-dim); border-color:var(--level2); }
+  .gift-mini-cell.lvl3{ background:var(--level3-dim); border-color:var(--level3); }
+  .gift-mini-cell.lvl4{ background:var(--level4-dim); border-color:var(--level4); }
+  .gift-mini-cell.lvl5{ background:var(--level5-dim); border-color:var(--level5); }
+  .gift-mini-cell.current{ box-shadow:0 0 0 2px var(--sunset-1); z-index:1; }
+
+  .fade-in{animation:fadeIn .3s ease;}
+
+  /* ---- Toast ---- */
+  .toast{
+    position:fixed;
+    background:var(--bg-elev);border:1px solid var(--line);
+    box-shadow:0 10px 30px -8px rgba(32,36,31,.25);
+    padding:12px 20px;border-radius:999px;
+    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;
+    z-index:60;display:flex;align-items:center;gap:8px;white-space:nowrap;
+    animation:toastIn .25s ease;
+  }
+  @keyframes toastIn{from{opacity:0;transform:translate(-50%,-12px);}to{opacity:1;transform:translate(-50%,0);}}
+</style>
+</head>
+<body class="min-h-screen">
+<div class="grain"></div>
+
+<div id="app" class="relative z-10 max-w-xl mx-auto px-5 pb-16 pt-8"></div>
+
+<script>
+/* =========================================================
+   데이터
+   ========================================================= */
+const STORAGE_KEY = 'runningMarble_v1';
+const TOTAL_MISSION_CELLS = 14; // 실제 '미션' 칸 개수 (START, 무인도 제외)
+const MAX_LEVEL = 5; // 완료 단계: 1=초록, 2=파랑, 3=보라, 4=오렌지, 5=골드(마스터)
+const MAX_ROLLS_PER_DAY = 1; // 하루 최대 주사위 횟수
+
+const MISSIONS = [
+  { emoji:'🏁', title:'START', desc:'마라닉프렌즈 9기, 2주간의 러닝 마블이 시작돼요.' },
+  { emoji:'🍦', title:'아이스크림런', desc:'러닝 후 아이스크림 하나로 나에게 상 주기 🍦' },
+  { emoji:'🧊', title:'아이싱하기', desc:'무릎, 종아리 등 오늘 사용한 근육 아이싱하기' },
+  { emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
+  { emoji:'⛰️', title:'업힐훈련하기', desc:'오르막 코스를 찾아 업힐 훈련 진행하기' },
+  { emoji:'🥚', title:'계란 2개 챙겨먹기', desc:'회복을 위한 단백질! 오늘은 계란 2개 챙겨먹기' },
+  { emoji:'💌', title:'감성 인증 한 줄', desc:'인증할 때 오늘의 감성 문구 한 줄 남기기 예) "오늘 힘든 하루였지만, 달릴 수 있어 행복하다"' },
+  { emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
+  { emoji:'🏋️', title:'스쿼트 10개 3세트', desc:'하체 근력 강화! 스쿼트 10개 x 3세트' },
+  { emoji:'🛤️', title:'트랙에서 달리기', desc:'집 근처 트랙(운동장)에서 달리기' },
+  { emoji:'🏝️', title:'무인도', desc:'표류 주의! 무인도에 걸리면 주사위 2개로 탈출을 시도해야 해요. 3번 안에 같은 숫자(더블)가 나와야 탈출! 🏴‍☠️', isIsland:true },
+  { emoji:'🧢', title:'여름 러닝템 소개', desc:'요즘 애용하는 나만의 여름 러닝 아이템 소개하기' },
+  { emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
+  { emoji:'🍉', title:'수박런', desc:'무더운 여름, 수박 먹고 힘내서 달리는 수박런' },
+  { emoji:'💦', title:'땀으로 흠뻑 젖은 내 모습', desc:'오늘 러닝 끝나고 땀으로 흠뻑 젖은 모습 인증하기' },
+  { emoji:'🦵', title:'카프레이즈 20개 3세트', desc:'종아리 강화! 카프레이즈 20개 x 3세트' },
+  { emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
+  { emoji:'✍️', title:'마프 2행시', desc:'\'마\' \'프\'로 시작하는 2행시 짓기' },
+  { emoji:'🌅', title:'저녁 노을 러닝', desc:'하루를 마무리하는 노을 러닝 즐기기' },
+  { emoji:'🤸', title:'런지 10개 3세트', desc:'전신 밸런스! 런지 10개 x 3세트' },
+];
+
+const TOTAL_CELLS = MISSIONS.length; // START + 미션 14개 + 무인도 1개 + 이벤트 칸 4개 = 20
+const ISLAND_INDEX = MISSIONS.findIndex(m => m.isIsland);
+const isEventCell = (m) => !!(m.isIsland || m.isEvent);
+
+// 화면에 표시할 '미션 번호'(START/이벤트 칸은 번호 없이, 실제 미션만 1~14로 순번 매김)
+let __missionCounter = 0;
+const MISSION_NUMBER = MISSIONS.map((m, i) => {
+  if (i === 0 || isEventCell(m)) return null;
+  __missionCounter++;
+  return __missionCounter;
+});
+// START/이벤트 칸을 제외한 실제 미션 인덱스 목록 (완료 집계용)
+const MISSION_INDICES = MISSIONS.map((_, i) => i).filter(i => i !== 0 && !isEventCell(MISSIONS[i]));
+
+/* =========================================================
+   상태
+   ========================================================= */
+function getTodayStr(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    const parsed = JSON.parse(raw);
+    // 이전 버전(completed 불리언 배열) 데이터 마이그레이션
+    if(parsed && !parsed.levels && parsed.completed){
+      parsed.levels = parsed.completed.map(v => v ? 1 : 0);
+      delete parsed.completed;
+    }
+    if(parsed && !parsed.dailyRolls){
+      parsed.dailyRolls = { date: getTodayStr(), count: 0 };
+    }
+    if(parsed && typeof parsed.adminMode !== 'boolean'){
+      parsed.adminMode = false;
+    }
+    if(parsed && typeof parsed.bonusRolls !== 'number'){
+      parsed.bonusRolls = 0;
+    }
+    if(parsed && typeof parsed.pendingPenalty !== 'number'){
+      parsed.pendingPenalty = 0;
+    }
+    // 목표(goal) 필드가 없는 기존 유저 대응 기본값 추가
+    if(parsed && typeof parsed.goal !== 'string'){
+      parsed.goal = '';
+    }
+    if(parsed && typeof parsed.score !== 'number'){
+      parsed.score = 0;
+    }
+    if(parsed && typeof parsed.completionUsed !== 'boolean'){
+      parsed.completionUsed = false;
+    }
+    // 보드 칸 구성이 여러 번 바뀌면서(무인도 → 응원/선물/물음표 추가) 배열 길이가 달라진 것을
+    // '실제 미션 14개'의 순서를 기준으로 안전하게 재매핑한다. (START/이벤트 칸은 항상 레벨 0)
+    if(parsed && Array.isArray(parsed.levels) && parsed.levels.length !== TOTAL_CELLS){
+      const oldLevels = parsed.levels;
+      const n = oldLevels.length;
+      let oldMissionLevels;
+      if(n === 15){
+        // v1: START(1) + 미션14, 이벤트 칸 없음
+        oldMissionLevels = oldLevels.slice(1);
+      } else if(n === 16){
+        // v2: START(1) + 미션7 + 무인도(1) + 미션7
+        oldMissionLevels = oldLevels.slice(1, 8).concat(oldLevels.slice(9, 16));
+      } else if(n === 19){
+        // v3: START(1) + 미션2 + 이벤트(1)@3 + 미션3 + 이벤트(1)@7 + 미션2 + 무인도(1)@10 + 미션4 + 이벤트(1)@15 + 미션3
+        // = index 1,2 / 4,5,6 / 8,9 / 11,12,13,14 / 16,17,18 (총 14개, 3/7/10/15 제외)
+        oldMissionLevels = [1,2,4,5,6,8,9,11,12,13,14,16,17,18].map(idx => oldLevels[idx]);
+      } else {
+        // 알 수 없는 이전 버전: 최대한 앞에서부터 14개를 가져온다(완벽하진 않을 수 있음)
+        oldMissionLevels = oldLevels.filter((_,i)=> i!==0).slice(0, 14);
+      }
+      const oldPos = parsed.position;
+      let oldMissionOrderOfPos = null; // 예전 위치가 '몇 번째 실제 미션'이었는지
+      if(typeof oldPos === 'number'){
+        if(n === 15 && oldPos >= 1) oldMissionOrderOfPos = oldPos - 1;
+        else if(n === 16 && oldPos >= 1 && oldPos !== 8) oldMissionOrderOfPos = oldPos < 8 ? oldPos - 1 : oldPos - 2;
+        else if(n === 19){
+          const v3MissionOrder = [1,2,4,5,6,8,9,11,12,13,14,16,17,18];
+          const found = v3MissionOrder.indexOf(oldPos);
+          if(found >= 0) oldMissionOrderOfPos = found;
+        }
+      }
+      const newLevels = Array(TOTAL_CELLS).fill(0);
+      MISSION_INDICES.forEach((idx, k) => { newLevels[idx] = oldMissionLevels[k] || 0; });
+      parsed.levels = newLevels;
+      parsed.position = (oldMissionOrderOfPos !== null) ? MISSION_INDICES[oldMissionOrderOfPos] : 0;
+    }
+    return parsed;
+  }catch(e){ return null; }
+}
+function saveState(state){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function freshState(nickname, goal){
+  return {
+    nickname,
+    goal: goal || '',
+    position: 0,
+    levels: Array(TOTAL_CELLS).fill(0),
+    score: 0,
+    dailyRolls: { date: getTodayStr(), count: 0 },
+    adminMode: false,
+    bonusRolls: 0,
+    pendingPenalty: 0, // 무인도 페널티를 오늘 다 못 뺐을 때 내일로 넘기는 빚
+    completionUsed: false, // 이번 도착에서 '미션 완료'를 이미 썼는지 (연타 방지)
+    createdAt: Date.now(),
+  };
+}
+
+// 날짜가 바뀌었으면 오늘의 주사위 횟수를 리셋한다. 전날 넘어온 무인도 페널티가 있으면 반영한다.
+function ensureDailyRollsFresh(){
+  const today = getTodayStr();
+  if(!state.dailyRolls || state.dailyRolls.date !== today){
+    const debt = state.pendingPenalty || 0;
+    state.dailyRolls = { date: today, count: Math.min(debt, MAX_ROLLS_PER_DAY) };
+    state.pendingPenalty = Math.max(0, debt - MAX_ROLLS_PER_DAY);
+    saveState(state);
+  }
+}
+function getRollsLeft(){
+  ensureDailyRollsFresh();
+  return Math.max(0, MAX_ROLLS_PER_DAY - state.dailyRolls.count);
+}
+
+/* =========================================================
+   관리자 모드 (닉네임 타이틀을 짧은 시간 안에 5번 연속 탭)
+   ========================================================= */
+let adminTapCount = 0;
+let adminTapTimer = null;
+const ADMIN_TAP_TARGET = 5;
+const ADMIN_TAP_WINDOW = 700; // ms
+
+function handleAdminTap(){
+  adminTapCount++;
+  if(adminTapTimer) clearTimeout(adminTapTimer);
+  adminTapTimer = setTimeout(()=>{ adminTapCount = 0; }, ADMIN_TAP_WINDOW);
+
+  if(adminTapCount >= ADMIN_TAP_TARGET){
+    adminTapCount = 0;
+    clearTimeout(adminTapTimer);
+    state.adminMode = !state.adminMode;
+    saveState(state);
+    showToast(state.adminMode ? '🔓 관리자 모드 ON — 주사위 무제한' : '🔒 관리자 모드 OFF', 1800);
+    renderGame();
+  }
+}
+
+let state = loadState();
+
+/* =========================================================
+   보드 좌표 계산 (둥근 사각 트랙 둘레에 15칸 균등 배치)
+   ========================================================= */
+function getPointOnTrack(index, total){
+  // 정사각 둘레를 시계방향으로 균등 분할, 위쪽 중앙에서 시작
+  const perim = 4; // 정규화된 한 변 길이 1 기준 둘레 4
+  const t = (index / total) * perim;
+  const half = 0.5;
+  let x, y;
+  if(t < 1){ // 위쪽 변: 왼쪽->오른쪽
+    x = -half + t; y = -half;
+  } else if(t < 2){ // 오른쪽 변: 위->아래
+    x = half; y = -half + (t-1);
+  } else if(t < 3){ // 아래쪽 변: 오른쪽->왼쪽
+    x = half - (t-2); y = half;
+  } else { // 왼쪽 변: 아래->위
+    x = -half; y = half - (t-3);
+  }
+  return { xPct: (x+half)*100, yPct: (y+half)*100 };
+}
+
+/* =========================================================
+   렌더링
+   ========================================================= */
+const app = document.getElementById('app');
+
+function render(){
+  if(!state){
+    renderOnboarding();
+  } else {
+    renderGame();
+  }
+}
+
+function renderOnboarding(){
+  app.innerHTML = `
+    <div class="fade-in flex flex-col items-center justify-center" style="min-height:80vh;">
+      <div class="text-5xl mb-5">🏃‍♂️</div>
+      <h1 class="font-display text-2xl font-bold text-center leading-snug">마라닉프렌즈 9기</h1>
+      <div class="w-full mt-10 rounded-3xl p-6" style="background:var(--bg-elev); border:1px solid var(--line);">
+        <label class="text-xs font-semibold tracking-wide uppercase" style="color:var(--text-dim)">닉네임을 입력해주세요</label>
+        <input id="nickname-input" type="text" maxlength="12" placeholder="예: 해피러너"
+          class="w-full mt-2 mb-4 px-4 py-3 rounded-xl outline-none text-base"
+          style="background:var(--bg-elev-2); border:1.5px solid var(--line); color:var(--text);">
+        
+        <label class="text-xs font-semibold tracking-wide uppercase" style="color:var(--text-dim)">마라닉 프렌즈 9기 목표</label>
+        <input id="goal-input" type="text" maxlength="40" placeholder="예: 주 3회 러닝, 경주마라톤 하프 완주 등 자유롭게"
+          class="w-full mt-2 px-4 py-3 rounded-xl outline-none text-base"
+          style="background:var(--bg-elev-2); border:1.5px solid var(--line); color:var(--text);">
+
+        <button id="start-btn" class="track-btn w-full mt-6 py-3 rounded-xl font-display font-bold text-white text-sm">
+          마라닉 프렌즈 9기 시작하기
+        </button>
+        <p class="text-xs mt-3 text-center" style="color:var(--text-dim)">입력한 정보와 진행 상황은 이 기기(브라우저)에 저장돼요.</p>
+      </div>
+    </div>
+  `;
+
+  const nicknameInput = document.getElementById('nickname-input');
+  const goalInput = document.getElementById('goal-input');
+  const btn = document.getElementById('start-btn');
+  const submit = ()=>{
+    const nickVal = nicknameInput.value.trim();
+    const goalVal = goalInput.value.trim();
+    if(!nickVal){ nicknameInput.focus(); nicknameInput.style.borderColor = 'var(--sunset-1)'; return; }
+    state = freshState(nickVal, goalVal);
+    saveState(state);
+    render();
+  };
+  btn.addEventListener('click', submit);
+  nicknameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') goalInput.focus(); });
+  goalInput.addEventListener('keydown', e=>{ if(e.key==='Enter') submit(); });
+  nicknameInput.focus();
+}
+
+function renderGame(){
+  const totalCompletions = MISSION_INDICES.reduce((sum,i)=> sum + (state.levels[i]||0), 0); // START/무인도 제외 총 완료 횟수
+  const allMastered = MISSION_INDICES.every(i => (state.levels[i]||0) >= MAX_LEVEL);
+  const rollsLeft = getRollsLeft();
+  const bonusRolls = state.bonusRolls || 0;
+  const canStillRoll = rollsLeft > 0 || bonusRolls > 0;
+
+  app.innerHTML = `
+    <div class="fade-in">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <p class="text-base font-bold tracking-wide uppercase" style="color:var(--text-dim)">마라닉프렌즈 9기</p>
+          <h1 id="dashboard-title" class="font-display text-xl font-bold mt-0.5" style="user-select:none;">
+            <span class="sunset-text">${escapeHtml(state.nickname)}</span>님의 러닝 마블 판
+          </h1>
+        </div>
+        <button id="reset-btn-top" title="초기화" class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+          style="background:var(--bg-elev); border:1px solid var(--line); color:var(--text-dim);">
+          ⟲
+        </button>
+      </div>
+
+      ${state.goal ? `
+      <div class="mb-4 rounded-xl px-4 py-2.5 flex items-center gap-2 text-medium" style="background:var(--bg-elev-2); border:1px solid var(--line);">
+        <span class="font-bold flex-shrink-0" style="color:var(--sunset-1)">🎯 나의 목표 :</span>
+        <span class="font-medium truncate" style="color:var(--text)">${escapeHtml(state.goal)}</span>
+      </div>
+      ` : ''}
+
+      <div class="mb-16 rounded-2xl p-4 flex items-center justify-between gap-4" style="background:var(--bg-elev); border:1px solid var(--line);">
+        <div>
+          <span class="text-xs" style="color:var(--text-dim)">총 미션 완료 개수</span>
+          <div id="progress-count" class="font-display text-2xl font-bold sunset-text">${totalCompletions}<span class="text-sm font-semibold" style="color:var(--text-dim)"> 회</span></div>
+        </div>
+        <div class="text-right">
+          <span class="text-xs" style="color:var(--text-dim)">점수</span>
+          <div id="progress-score" class="font-display text-2xl font-bold" style="color:var(--level4)">${state.score || 0}<span class="text-sm font-semibold" style="color:var(--text-dim)"> 점</span></div>
+        </div>
+      </div>
+
+      <div id="board-wrap">
+        <div id="board-field"></div>
+        <div class="lane-outline"></div>
+        <div id="cells-layer"></div>
+        <div id="token"><div id="token-glow"></div><span style="position:relative;z-index:1;">🏃</span></div>
+
+        <div id="board-help" style="position:absolute; left:50%; top:80%; transform:translate(-50%,-50%); width:80%; z-index:3; text-align:center;">
+          <p class="text-[10px]" style="color:var(--text-dim); white-space:nowrap;">각 이모티콘을 누르면 미션을 확인할 수 있어요</p>
+          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">주사위는 하루에 1번만 굴릴 수 있어요</p>
+          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">❓물음표는 5가지 이벤트가 랜덤으로 나와요</p>
+          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏝️ 무인도는 3번 안에 더블이 나와야 탈출해요</p>
+        </div>
+
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px;z-index:3;">
+          ${state.adminMode ? `
+            <div id="dice1" class="die"></div>
+            <button id="roll-btn" class="track-btn px-6 py-2.5 rounded-full font-display font-bold text-white text-sm">
+              주사위 던지기
+            </button>
+            <p class="text-xs" style="color:var(--text-dim)">🔓 관리자 모드 · 무제한</p>
+          ` : allMastered ? `
+            <div class="text-3xl">🏆</div>
+            <p class="font-display font-bold text-sm text-center px-4" style="color:var(--complete)">모든 미션 마스터!</p>
+          ` : canStillRoll ? `
+            <div id="dice1" class="die"></div>
+            <button id="roll-btn" class="track-btn px-6 py-2.5 rounded-full font-display font-bold text-white text-sm">
+              주사위 던지기
+            </button>
+            <p class="text-xs text-center" style="color:var(--text-dim)">
+              ${rollsLeft > 0 ? `오늘 ${rollsLeft}/${MAX_ROLLS_PER_DAY}번 남음` : '오늘 기본 횟수 소진'}
+              ${bonusRolls > 0 ? ` · 🎁 보너스 ${bonusRolls}개` : ''}
+            </p>
+          ` : `
+            <div id="dice1" class="die"></div>
+            <button id="roll-btn" class="track-btn px-6 py-2.5 rounded-full font-display font-bold text-white text-sm" disabled>
+              주사위 던지기
+            </button>
+            <p class="text-xs text-center leading-relaxed" style="color:var(--text-dim)">오늘의 주사위를 모두 사용했어요<br>내일 다시 도전해보세요</p>
+          `}
+        </div>
+      </div>
+
+      <div class="mt-20 flex justify-center">
+        <button id="reset-btn-bottom" class="text-xs px-4 py-2 rounded-full"
+          style="color:var(--text-dim); border:1px solid var(--line); background:transparent;">
+          모든 기록 초기화하기
+        </button>
+      </div>
+    </div>
+  `;
+
+  renderCells();
+  positionToken(state.position, false);
+  if(state.adminMode || !allMastered) renderDicePips(1, 'dice1');
+
+  const rollBtn = document.getElementById('roll-btn');
+  if(rollBtn) rollBtn.addEventListener('click', onRoll);
+  document.getElementById('reset-btn-top').addEventListener('click', confirmReset);
+  document.getElementById('reset-btn-bottom').addEventListener('click', confirmReset);
+  document.getElementById('dashboard-title').addEventListener('click', handleAdminTap);
+}
+
+function renderCells(){
+  const layer = document.getElementById('cells-layer');
+  layer.innerHTML = '';
+  for(let i=0;i<TOTAL_CELLS;i++){
+    const { xPct, yPct } = getPointOnTrack(i, TOTAL_CELLS);
+    const mission = MISSIONS[i];
+    const isStart = i===0;
+    const isIsland = !!mission.isIsland;
+    const isRandomEvent = !!mission.isEvent; // 응원/선물/물음표가 통합된 랜덤 이벤트 칸
+    const isEvent = isEventCell(mission); // 무인도 + 랜덤 이벤트 칸 전부 포함
+    const level = state.levels[i] || 0;
+    const div = document.createElement('div');
+    let cls = 'cell';
+    if(isStart) cls += ' start';
+    else if(isIsland) cls += ' island';
+    else if(isRandomEvent) cls += ' event';
+    else if(level >= 1) cls += ` lvl${Math.min(level, MAX_LEVEL)}`;
+    if(i === state.position) cls += ' current';
+    div.className = cls;
+    div.style.left = xPct + '%';
+    div.style.top = yPct + '%';
+
+    // 완료할 때마다(1회=1개 ~ 5회=5개) 이모티콘을 하나씩 더 보여준다. (START/이벤트 칸은 항상 1개)
+    const emojiCount = (isStart || isEvent) ? 1 : Math.max(1, Math.min(level, MAX_LEVEL));
+    const emojiSize = emojiCount<=1 ? 20 : emojiCount===2 ? 16 : emojiCount===3 ? 13 : emojiCount===4 ? 11 : 9;
+    // 랜덤 이벤트 칸은 실제 효과를 숨기기 위해 항상 검정 물음표만 보여준다 (도착해야만 어떤 효과인지 알 수 있음)
+    const emojiHtml = isRandomEvent ? '?' : mission.emoji.repeat(emojiCount);
+    const numLabel = (isStart || isEvent) ? '' : MISSION_NUMBER[i];
+
+    div.innerHTML = `
+      <span class="cell-num">${numLabel}</span>
+      <span class="cell-emoji" style="font-size:${emojiSize}px;">${emojiHtml}</span>
+      ${(!isStart && !isEvent && level >= 1) ? '<span class="cell-check">✅</span>' : ''}
+    `;
+    // 랜덤 이벤트 칸은 클릭해도 아무 반응이 없다 (미리보기 금지 — 도착해야만 효과를 알 수 있음)
+    if(!isRandomEvent){
+      div.addEventListener('click', ()=> openMission(i));
+    }
+    layer.appendChild(div);
+  }
+}
+
+function positionToken(index, animate){
+  const token = document.getElementById('token');
+  const { xPct, yPct } = getPointOnTrack(index, TOTAL_CELLS);
+  if(!animate){ token.style.transitionDuration = '0s'; }
+  token.style.left = xPct + '%';
+  token.style.top = yPct + '%';
+  if(!animate){
+    requestAnimationFrame(()=>{ token.style.transitionDuration = ''; });
+  }
+}
+
+function renderDicePips(n, elId){
+  const dice = document.getElementById(elId || 'dice1');
+  if(!dice) return;
+  const layouts = {
+    1:[0,0,0,0,1,0,0,0,0],
+    2:[1,0,0,0,0,0,0,0,1],
+    3:[1,0,0,0,1,0,0,0,1],
+    4:[1,0,1,0,0,0,1,0,1],
+    5:[1,0,1,0,1,0,1,0,1],
+    6:[1,0,1,1,0,1,1,0,1],
+  };
+  const layout = layouts[n] || layouts[1];
+  dice.innerHTML = layout.map(v=>`<div class="pip ${v?'on':''}"></div>`).join('');
+}
+function renderDicePair(n1, n2){
+  renderDicePips(n1, 'dice1');
+  renderDicePips(n2, 'dice2');
+}
+
+function refreshProgress(){
+  const totalCompletions = MISSION_INDICES.reduce((sum,i)=> sum + (state.levels[i]||0), 0);
+  const countEl = document.getElementById('progress-count');
+  if(countEl) countEl.innerHTML = `${totalCompletions}<span class="text-sm font-semibold" style="color:var(--text-dim)"> 회</span>`;
+  const scoreEl = document.getElementById('progress-score');
+  if(scoreEl) scoreEl.innerHTML = `${state.score || 0}<span class="text-sm font-semibold" style="color:var(--text-dim)"> 점</span>`;
+  const allMastered = MISSION_INDICES.every(i => (state.levels[i]||0) >= MAX_LEVEL);
+  // 모든 칸이 3단계(빨강)까지 마스터되면 주사위 영역을 완주 화면으로 전환
+  if(allMastered){
+    renderGame();
+  }
+}
+
+/* =========================================================
+   주사위 & 이동
+   ========================================================= */
+let isRolling = false;
+
+function getValidRolls(){
+  // 평소 이동은 주사위 1개(1~6)만 사용한다. (무인도 탈출 미니게임에서만 별도로 2개를 굴림)
+  const W_UNVISITED = 3; // 아직 한 번도 안 나온 미션 칸 / 이벤트 칸 (그래도 가장 잘 나오게)
+  const W_REVISIT   = 2; // 이미 밟았지만 마스터 전인 미션 칸
+  const W_ISLAND     = 2; // 무인도 (일부러 확률을 낮게 유지)
+  const W_START      = 1; // START
+
+  const pool = [];
+  for(let r=1;r<=6;r++){
+    const target = (state.position + r) % TOTAL_CELLS;
+    const targetMission = MISSIONS[target];
+    let weight = 0;
+    if(target === 0){
+      weight = W_START;
+    } else if(target === ISLAND_INDEX){
+      weight = W_ISLAND;
+    } else if(targetMission.isEvent){
+      weight = W_UNVISITED; // 이벤트 칸은 일반 미션처럼 잘 걸리게
+    } else {
+      const lvl = state.levels[target] || 0;
+      if(lvl >= MAX_LEVEL) continue; // 마스터된 칸은 이동 대상에서 제외
+      weight = (lvl === 0) ? W_UNVISITED : W_REVISIT;
+    }
+    for(let k=0;k<weight;k++) pool.push(r);
+  }
+  if(pool.length > 0) return pool;
+  return [1,2,3,4,5,6];
+}
+
+function onRoll(){
+  if(isRolling) return;
+  const hasBonus = (state.bonusRolls || 0) > 0;
+  if(!state.adminMode && getRollsLeft() <= 0 && !hasBonus){
+    showToast('오늘 주사위를 모두 사용했어요! 내일 다시 도전해보세요');
+    return;
+  }
+  const validRolls = getValidRolls();
+  if(validRolls.length === 0){
+    alert('지금 위치에서는 이동할 수 있는 칸이 없어요. 잠시 후 다시 시도해주세요!');
+    return;
+  }
+
+  isRolling = true;
+  const rollBtn = document.getElementById('roll-btn');
+  const die1 = document.getElementById('dice1');
+  rollBtn.disabled = true;
+  die1.classList.add('rolling');
+
+  const spinInterval = setInterval(()=>{
+    renderDicePips(1 + Math.floor(Math.random()*6), 'dice1');
+  }, 90);
+
+  setTimeout(()=>{
+    clearInterval(spinInterval);
+    die1.classList.remove('rolling');
+    const result = validRolls[Math.floor(Math.random()*validRolls.length)];
+    renderDicePips(result, 'dice1');
+    if(!state.adminMode){
+      if(getRollsLeft() > 0){
+        state.dailyRolls.count += 1;
+      } else if(state.bonusRolls > 0){
+        state.bonusRolls -= 1;
+      }
+    }
+    saveState(state);
+    moveToken(result, ()=>{
+      isRolling = false;
+      renderGame();
+    });
+  }, 1500);
+}
+
+function moveToken(steps, onDone){
+  animateSteps(state.position, steps, (finalIndex)=>{
+    setTimeout(()=> resolveLanding(finalIndex, 0, onDone), 550);
+  });
+}
+
+function animateSteps(fromIndex, delta, onDone){
+  let current = fromIndex;
+  let remaining = Math.abs(delta);
+  const dir = delta >= 0 ? 1 : -1;
+
+  function step(){
+    if(remaining <= 0){
+      if(onDone) onDone(current);
+      return;
+    }
+    current = (current + dir + TOTAL_CELLS) % TOTAL_CELLS;
+    remaining--;
+    positionToken(current, true);
+    setTimeout(step, 480);
+  }
+
+  if(delta === 0){ if(onDone) onDone(current); return; }
+  step();
+}
+
+function resolveLanding(index, depth, onFinalDone){
+  depth = depth || 0;
+  state.position = index;
+  state.completionUsed = false; // 새로 도착했으니 이번 칸에서 완료 기회를 다시 준다
+  saveState(state);
+  renderCells();
+
+  const mission = MISSIONS[index];
+
+  if(index === 0){
+    applyStartBonus();
+    if(onFinalDone) onFinalDone();
+    return;
+  }
+
+  if(index === ISLAND_INDEX){
+    openIslandEscape(onFinalDone);
+    return;
+  }
+
+  if(mission.isEvent){
+    if(depth < 6){
+      const effect = pickRandomEventEffect();
+      runEventEffect(effect, index, depth, onFinalDone);
+      return;
+    }
+    showToast('⚠️ 이벤트가 계속 이어져서 여기서 멈출게요');
+  } else {
+    openMission(index);
+  }
+
+  if(onFinalDone) onFinalDone();
+}
+
+// START 도착 처리 (직접 도착이든, '출발지로 돌아가기' 이벤트 효과든 동일)
+function applyStartBonus(){
+  state.bonusRolls = (state.bonusRolls || 0) + 1;
+  saveState(state);
+  showToast('🎉 START 도착! 무료 주사위 찬스 +1');
+}
+
+// 무인도 탈출 미니게임: 주사위 2개를 굴려 '더블(같은 숫자)'이 나오면 탈출.
+// 최대 3번까지 시도할 수 있고, 탈출에 성공하면 주사위를 한 번 더 던질 수 있는 보너스 찬스를 준다.
+// (직접 도착이든, '무인도 가기' 이벤트 효과든 동일하게 이 미니게임이 뜬다)
+function openIslandEscape(onFinalDone){
+  const MAX_ATTEMPTS = 3;
+  let attemptsLeft = MAX_ATTEMPTS;
+  let resolved = false;
+  let rolling = false;
+
+  const finish = ()=>{
+    if(resolved) return;
+    resolved = true;
+    backdrop.remove();
+    if(onFinalDone) onFinalDone();
+  };
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal-card">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-xs font-semibold tracking-wide uppercase" style="color:var(--text-dim)">🏝️ 무인도 표류</p>
+          <h2 class="font-display text-xl font-bold mt-1">탈출을 시도해보세요!</h2>
+        </div>
+      </div>
+      <p class="text-sm mt-4 leading-relaxed" style="color:var(--text-dim)">
+        주사위 2개를 던져서 <b style="color:var(--text)">같은 숫자(더블)</b>가 나오면 탈출 성공!<br>
+        <b style="color:var(--text)">3번 안에</b> 성공하면 주사위를 <b style="color:var(--text)">한 번 더</b> 던질 기회를 드려요.
+      </p>
+      <div class="flex justify-center gap-3 mt-5">
+        <div id="escape-dice1" class="die"></div>
+        <div id="escape-dice2" class="die"></div>
+      </div>
+      <p id="escape-attempts" class="text-center text-xs mt-3" style="color:var(--text-dim)">남은 시도: ${attemptsLeft}번</p>
+      <button id="escape-roll-btn" class="w-full mt-5 track-btn py-3 rounded-xl font-display font-bold text-white text-sm">주사위 굴리기</button>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  renderDicePips(1, 'escape-dice1');
+  renderDicePips(1, 'escape-dice2');
+
+  const rollBtn = backdrop.querySelector('#escape-roll-btn');
+  const attemptsLabel = backdrop.querySelector('#escape-attempts');
+  const d1El = backdrop.querySelector('#escape-dice1');
+  const d2El = backdrop.querySelector('#escape-dice2');
+
+  rollBtn.addEventListener('click', ()=>{
+    if(rolling || resolved) return;
+    rolling = true;
+    rollBtn.disabled = true;
+    d1El.classList.add('rolling');
+    d2El.classList.add('rolling');
+
+    const spin = setInterval(()=>{
+      renderDicePips(1 + Math.floor(Math.random()*6), 'escape-dice1');
+      renderDicePips(1 + Math.floor(Math.random()*6), 'escape-dice2');
+    }, 90);
+
+    setTimeout(()=>{
+      clearInterval(spin);
+      d1El.classList.remove('rolling');
+      d2El.classList.remove('rolling');
+      const v1 = 1 + Math.floor(Math.random()*6);
+      const v2 = 1 + Math.floor(Math.random()*6);
+      renderDicePips(v1, 'escape-dice1');
+      renderDicePips(v2, 'escape-dice2');
+      attemptsLeft--;
+      rolling = false;
+
+      if(v1 === v2){
+        state.bonusRolls = (state.bonusRolls || 0) + 1;
+        saveState(state);
+        showToast('🎉 더블! 무인도 탈출 성공 — 주사위 찬스 +1');
+        setTimeout(finish, 900);
+      } else if(attemptsLeft <= 0){
+        showToast('😢 탈출 실패... 다음 기회에 다시 도전해보세요');
+        setTimeout(finish, 900);
+      } else {
+        attemptsLabel.textContent = `남은 시도: ${attemptsLeft}번`;
+        rollBtn.disabled = false;
+      }
+    }, 900);
+  });
+
+  // 탈출 실패로 끝나기 전엔 바깥을 눌러도 그냥 안 닫히게(강제로 시도하게) 두고,
+  // 이미 끝난 뒤(finish 호출됨)에는 backdrop 자체가 사라지므로 문제 없다.
+}
+
+// 이벤트(물음표) 칸에 도착했을 때 발동할 효과를 가중치 기반으로 랜덤 선택한다.
+// 무인도로 보내는 효과는 확률을 낮게 유지한다.
+function pickRandomEventEffect(){
+  const table = [
+    { key:'start',    weight:3 },
+    { key:'forward3', weight:3 },
+    { key:'back2',    weight:3 },
+    { key:'gift',     weight:3 },
+    { key:'island',   weight:1 }, // 비교적 낮은 확률
+  ];
+  const pool = [];
+  table.forEach(t => { for(let k=0;k<t.weight;k++) pool.push(t.key); });
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+function runEventEffect(effect, index, depth, onFinalDone){
+  if(effect === 'start'){
+    openEventConfirm('❓ 이벤트 칸', '🏁 출발지로 돌아가기', '출발지(START)로 이동하겠습니다', ()=>{
+      positionToken(0, true);
+      setTimeout(()=> resolveLanding(0, depth+1, onFinalDone), 480);
+    });
+  } else if(effect === 'forward3'){
+    openEventConfirm('❓ 이벤트 칸', '📣 응원을 듬뿍 받았어요', '앞으로 3칸 이동하겠습니다', ()=>{
+      animateSteps(index, 3, (finalIdx)=> {
+        setTimeout(()=> resolveLanding(finalIdx, depth+1, onFinalDone), 550);
+      });
+    });
+  } else if(effect === 'back2'){
+    openEventConfirm('❓ 이벤트 칸', '⚠️ 어이쿠!', '뒤로 2칸 이동하겠습니다', ()=>{
+      animateSteps(index, -2, (finalIdx)=> {
+        setTimeout(()=> resolveLanding(finalIdx, depth+1, onFinalDone), 550);
+      });
+    });
+  } else if(effect === 'island'){
+    openEventConfirm('❓ 이벤트 칸', '🏝️ 무인도行', '무인도로 이동하겠습니다', ()=>{
+      positionToken(ISLAND_INDEX, true);
+      setTimeout(()=> resolveLanding(ISLAND_INDEX, depth+1, onFinalDone), 480);
+    });
+  } else { // gift
+    openGiftPicker(index, depth, onFinalDone);
+  }
+}
+
+
+
+/* =========================================================
+   미션 모달
+   ========================================================= */
+function openMission(index){
+  if(index === 0) return;
+  const mission = MISSIONS[index];
+  if(mission.isEvent) return; // 랜덤 이벤트 칸은 클릭 미리보기 자체가 없음
+  const isIsland = !!mission.isIsland;
+  const isEvent = isEventCell(mission);
+  const level = state.levels[index] || 0;
+  const mastered = level >= MAX_LEVEL;
+  const canComplete = !isEvent && (index === state.position) && !mastered && !state.completionUsed;
+
+  const eventLabel = isIsland ? '⚠️ 위험 칸' : null;
+
+  const LEVEL_COLOR = { 1:'--complete', 2:'--level2', 3:'--level3', 4:'--level4', 5:'--level5' };
+  const levelLabel = ['','1회 완료 · 초록','2회 완료 · 파랑','3회 완료 · 보라','4회 완료 · 오렌지','5회 완료 · 골드(마스터)'][level];
+  const levelColorVar = level > 0 ? `var(${LEVEL_COLOR[Math.min(level, MAX_LEVEL)]})` : null;
+  const levelDimVar = level > 0 ? `var(${LEVEL_COLOR[Math.min(level, MAX_LEVEL)]}-dim)` : null;
+
+  let footerHtml;
+  if(canComplete){
+    footerHtml = `
+      ${level > 0 ? `<p class="text-xs mt-4" style="color:var(--text-dim)">현재 ${levelLabel} 상태예요. 다시 완료하면 다음 단계로 올라가요.</p>` : ''}
+      <div class="flex gap-3 mt-4">
+        <button id="complete-btn" class="flex-1 track-btn py-3 rounded-xl font-display font-bold text-white text-sm">미션 완료</button>
+        <button id="modal-confirm" class="flex-1 py-3 rounded-xl font-display font-bold text-sm"
+          style="background:var(--bg-elev-2); color:var(--text);">확인</button>
+      </div>
+    `;
+  } else {
+    footerHtml = `
+      <div class="mt-6">
+        ${level > 0 ? `<div class="w-full py-3 rounded-xl text-center font-display font-bold text-sm mb-3" style="background:${mastered ? levelDimVar : 'var(--complete-dim)'}; color:${mastered ? levelColorVar : 'var(--complete)'}; border:1px solid ${mastered ? levelColorVar : 'var(--complete)'};">${mastered ? '🏅 마스터한 미션이에요' : '✅ ' + levelLabel}</div>` : ''}
+        <button id="modal-confirm" class="w-full py-3 rounded-xl font-display font-bold text-sm"
+          style="background:var(--bg-elev-2); color:var(--text);">확인</button>
+      </div>
+    `;
+  }
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal-card">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-xs font-semibold tracking-wide uppercase" style="color:var(--text-dim)">${eventLabel ? eventLabel : `MISSION ${MISSION_NUMBER[index]}`}${!canComplete && !isEvent && level===0 ? ' · 미리보기' : ''}</p>
+          <h2 class="font-display text-xl font-bold mt-1">${mission.emoji} ${escapeHtml(mission.title)}</h2>
+        </div>
+        <button id="modal-close" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+          style="background:var(--bg-elev-2); color:var(--text-dim);">✕</button>
+      </div>
+      <p class="text-sm mt-4 leading-relaxed" style="color:var(--text-dim)">${escapeHtml(mission.desc)}</p>
+      ${footerHtml}
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+
+  const close = ()=> backdrop.remove();
+  backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) close(); });
+  backdrop.querySelector('#modal-close').addEventListener('click', close);
+  const confirmBtn = backdrop.querySelector('#modal-confirm');
+  if(confirmBtn) confirmBtn.addEventListener('click', close);
+  const completeBtn = backdrop.querySelector('#complete-btn');
+  if(completeBtn){
+    completeBtn.addEventListener('click', ()=>{
+      if(!state.completionUsed && (state.levels[index] || 0) < MAX_LEVEL){
+        state.levels[index] = (state.levels[index] || 0) + 1;
+        state.score = (state.score || 0) + state.levels[index] * 10; // 1회10점,2회20점...5회50점
+        state.completionUsed = true; // 이번 도착에서의 완료 기회는 다 썼음
+        saveState(state);
+        renderCells();
+        refreshProgress();
+      }
+      close();
+    });
+  }
+}
+
+/* =========================================================
+   응원/물음표 칸: 이동하기 전에 확인 팝업을 띄운다
+   ========================================================= */
+function openEventConfirm(label, title, desc, onProceed){
+  let settled = false;
+  const proceed = ()=>{
+    if(settled) return;
+    settled = true;
+    backdrop.remove();
+    onProceed();
+  };
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal-card">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-xs font-semibold tracking-wide uppercase" style="color:var(--text-dim)">${label}</p>
+          <h2 class="font-display text-xl font-bold mt-1">${escapeHtml(title)}</h2>
+        </div>
+      </div>
+      <p class="text-sm mt-4 leading-relaxed" style="color:var(--text-dim)">${escapeHtml(desc)}</p>
+      <button id="event-confirm-btn" class="w-full mt-6 track-btn py-3 rounded-xl font-display font-bold text-white text-sm">확인</button>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+
+  backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) proceed(); });
+  backdrop.querySelector('#event-confirm-btn').addEventListener('click', proceed);
+}
+
+/* =========================================================
+   선물 칸: 원하는 미션 칸으로 바로 이동
+   ========================================================= */
+function openGiftPicker(giftIndex, depth, onFinalDone){
+  let settled = false;
+  const finish = ()=>{ if(!settled){ settled = true; if(onFinalDone) onFinalDone(); } };
+
+  // 보드 전체를 작게 그려서, 각 미션 칸의 완료 상태(색상)를 보고 고를 수 있게 한다.
+  let miniCellsHtml = '';
+  for(let i=0;i<TOTAL_CELLS;i++){
+    const { xPct, yPct } = getPointOnTrack(i, TOTAL_CELLS);
+    const m = MISSIONS[i];
+    const isStart = i===0;
+    const isIsland = !!m.isIsland;
+    const isRandomEvent = !!m.isEvent;
+    const lvl = state.levels[i] || 0;
+    let cls = 'gift-mini-cell';
+    if(isStart) cls += ' start';
+    else if(isIsland) cls += ' island';
+    else if(isRandomEvent) cls += ' event';
+    else if(lvl >= 1) cls += ` lvl${Math.min(lvl, MAX_LEVEL)}`;
+    const clickable = !isStart && !isIsland && !isRandomEvent;
+    if(i === state.position) cls += ' current';
+    const label = isStart ? '' : isIsland ? '' : isRandomEvent ? '?' : (m.emoji);
+    miniCellsHtml += `
+      <div class="${cls}" style="left:${xPct}%; top:${yPct}%;" ${clickable ? `data-idx="${i}"` : ''}>
+        <span>${label}</span>
+      </div>
+    `;
+  }
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal-card">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-xs font-semibold tracking-wide uppercase" style="color:var(--text-dim)">❓ 이벤트 칸</p>
+          <h2 class="font-display text-xl font-bold mt-1">🎁 원하는 칸으로 이동!</h2>
+        </div>
+        <button id="modal-close" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+          style="background:var(--bg-elev-2); color:var(--text-dim);">✕</button>
+      </div>
+      <p class="text-sm mt-4 leading-relaxed" style="color:var(--text-dim)">지도를 보고 가고 싶은 미션 칸을 눌러주세요. 그 칸으로 바로 이동해요.</p>
+      <div class="gift-mini-board mt-4">${miniCellsHtml}</div>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+
+  const close = ()=>{ backdrop.remove(); finish(); };
+  backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) close(); });
+  backdrop.querySelector('#modal-close').addEventListener('click', close);
+  backdrop.querySelectorAll('.gift-mini-cell[data-idx]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = parseInt(btn.dataset.idx, 10);
+      settled = true;
+      backdrop.remove();
+      positionToken(idx, true);
+      setTimeout(()=> resolveLanding(idx, depth+1, onFinalDone), 480);
+    });
+  });
+}
+
+/* =========================================================
+   초기화
+   ========================================================= */
+function confirmReset(){
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal-card">
+      <h2 class="font-display text-lg font-bold">정말 초기화할까요?</h2>
+      <p class="text-sm mt-2" style="color:var(--text-dim)">닉네임, 목표 및 지금까지의 미션 완료 기록이 모두 사라져요. 이 작업은 되돌릴 수 없어요.</p>
+      <div class="flex gap-3 mt-6">
+        <button id="cancel-reset" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:var(--bg-elev-2); color:var(--text);">취소</button>
+        <button id="confirm-reset" class="flex-1 py-3 rounded-xl text-sm font-bold text-white" style="background:var(--sunset-1);">초기화하기</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) backdrop.remove(); });
+  backdrop.querySelector('#cancel-reset').addEventListener('click', ()=> backdrop.remove());
+  backdrop.querySelector('#confirm-reset').addEventListener('click', ()=>{
+    localStorage.removeItem(STORAGE_KEY);
+    state = null;
+    backdrop.remove();
+    render();
+  });
+}
+
+/* =========================================================
+   유틸
+   ========================================================= */
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function showToast(msg, duration=2200){
+  const anchor = document.getElementById('roll-btn') || document.getElementById('dice1');
+  let top = 24, left = window.innerWidth/2;
+  if(anchor){
+    const rect = anchor.getBoundingClientRect();
+    top = rect.bottom + 12;
+    left = rect.left + rect.width/2;
+  }
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.style.top = top + 'px';
+  el.style.left = left + 'px';
+  el.style.transform = 'translateX(-50%)';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(()=>{
+    el.style.transition = 'opacity .3s ease, transform .3s ease';
+    el.style.opacity = '0';
+    el.style.transform = 'translate(-50%, -10px)';
+    setTimeout(()=> el.remove(), 300);
+  }, duration);
+}
+
+render();
+</script>
+</body>
+</html>
