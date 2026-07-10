@@ -268,8 +268,8 @@ const MAX_ROLLS_PER_DAY = 1; // 하루 최대 주사위 횟수
 
 const MISSIONS = [
   { emoji:'🏁', title:'START', desc:'마라닉프렌즈 9기, 2주간의 러닝 마블이 시작돼요.' },
-  { emoji:'🍦', title:'아이스크림런', desc:'러닝 후 아이스크림 하나로 나에게 상 주기 🍦' },
   { emoji:'🧊', title:'아이싱하기', desc:'무릎, 종아리 등 오늘 사용한 근육 아이싱하기' },
+  { emoji:'🍦', title:'아이스크림런', desc:'러닝 후 아이스크림 하나로 나에게 상 주기 🍦' },
   { emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
   { emoji:'⛰️', title:'업힐훈련하기', desc:'오르막 코스를 찾아 업힐 훈련 진행하기' },
   { emoji:'🥚', title:'계란 2개 챙겨먹기', desc:'회복을 위한 단백질! 오늘은 계란 2개 챙겨먹기' },
@@ -596,7 +596,7 @@ function renderGame(){
             <button id="roll-btn" class="track-btn px-6 py-2.5 rounded-full font-display font-bold text-white text-sm" disabled>
               주사위 던지기
             </button>
-            <p class="text-xs text-center leading-relaxed" style="color:var(--text-dim)">오늘의 주사위를 모두 사용했어요<br>내일 다시 도전해보세요</p>
+            <p class="text-xs text-center leading-relaxed" style="color:var(--text-dim)">오늘의 주사위 사용 완료<br>내일 다시 도전해보세요</p>
           `}
         </div>
       </div>
