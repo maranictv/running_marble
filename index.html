@@ -236,8 +236,25 @@
   .gift-mini-cell.lvl4{ background:var(--level4-dim); border-color:var(--level4); }
   .gift-mini-cell.lvl5{ background:var(--level5-dim); border-color:var(--level5); }
   .gift-mini-cell.current{ box-shadow:0 0 0 2px var(--sunset-1); z-index:1; }
+  .gift-mini-cell.selected{ box-shadow:0 0 0 3px var(--sunset-1), 0 4px 10px -2px rgba(255,62,127,.4); transform:translate(-50%,-50%) scale(1.15); z-index:3; }
 
   .fade-in{animation:fadeIn .3s ease;}
+
+  /* ---- 허브 화면 2x2 프로그램 카드 ---- */
+  .hub-card{
+    aspect-ratio:1/1;
+    border-radius:22px;
+    background:var(--bg-elev);
+    border:1.5px solid var(--line);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+    box-shadow:0 2px 8px -2px rgba(32,36,31,.06);
+    cursor:pointer;
+    transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .hub-card:hover{ transform:translateY(-3px); border-color:var(--sunset-1); box-shadow:0 8px 20px -6px rgba(255,62,127,.25); }
+  .hub-card:active{ transform:scale(.97); }
+  .hub-card-emoji{ font-size:30px; }
+  .hub-card-label{ font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; color:var(--text); }
 
   /* ---- Toast ---- */
   .toast{
@@ -263,7 +280,7 @@
    ========================================================= */
 const STORAGE_KEY = 'runningMarble_v1';
 const TOTAL_MISSION_CELLS = 14; // 실제 '미션' 칸 개수 (START, 무인도 제외)
-const MAX_LEVEL = 5; // 완료 단계: 1=초록, 2=파랑, 3=보라, 4=오렌지, 5=골드(마스터)
+const MAX_LEVEL = 3; // 완료 단계: 1=초록, 2=파랑, 3=보라(마스터) — 블루마블 건물 업그레이드처럼 최대 3회
 const MAX_ROLLS_PER_DAY = 1; // 하루 최대 주사위 횟수
 
 const MISSIONS = [
@@ -302,6 +319,16 @@ const MISSION_NUMBER = MISSIONS.map((m, i) => {
 });
 // START/이벤트 칸을 제외한 실제 미션 인덱스 목록 (완료 집계용)
 const MISSION_INDICES = MISSIONS.map((_, i) => i).filter(i => i !== 0 && !isEventCell(MISSIONS[i]));
+
+// 보드 4변 라인 보너스 그룹 (모서리 미션은 인접한 두 변에 모두 포함되어 각 변이 4개씩)
+const LINE_GROUPS = [
+  { name: '위쪽', indices: [1, 2, 4, 5] },
+  { name: '오른쪽', indices: [5, 6, 8, 9] },
+  { name: '아래쪽', indices: [11, 13, 14, 15] },
+  { name: '왼쪽', indices: [15, 17, 18, 19] },
+];
+const LINE_BONUS_POINTS = 100;
+
 
 /* =========================================================
    상태
@@ -345,6 +372,9 @@ function loadState(){
     }
     if(parsed && typeof parsed.completionUsed !== 'boolean'){
       parsed.completionUsed = false;
+    }
+    if(parsed && !Array.isArray(parsed.lineBonusAwarded)){
+      parsed.lineBonusAwarded = LINE_GROUPS.map(()=> false);
     }
     // 보드 칸 구성이 여러 번 바뀌면서(무인도 → 응원/선물/물음표 추가) 배열 길이가 달라진 것을
     // '실제 미션 14개'의 순서를 기준으로 안전하게 재매핑한다. (START/이벤트 칸은 항상 레벨 0)
@@ -395,6 +425,7 @@ function freshState(nickname, goal){
     position: 0,
     levels: Array(TOTAL_CELLS).fill(0),
     score: 0,
+    lineBonusAwarded: LINE_GROUPS.map(()=> false), // 변(라인) 보너스는 변마다 딱 1번만
     dailyRolls: { date: getTodayStr(), count: 0 },
     adminMode: false,
     bonusRolls: 0,
@@ -470,12 +501,22 @@ function getPointOnTrack(index, total){
    ========================================================= */
 const app = document.getElementById('app');
 
+let currentView = 'hub'; // 'hub' | 'marble' | 'wip'
+let wipTitle = '';
+
 function render(){
   if(!state){
     renderOnboarding();
-  } else {
-    renderGame();
+    return;
   }
+  if(currentView === 'marble') renderGame();
+  else if(currentView === 'wip') renderWorkInProgress();
+  else renderHub();
+}
+
+function goToHub(){
+  currentView = 'hub';
+  render();
 }
 
 function renderOnboarding(){
@@ -519,8 +560,131 @@ function renderOnboarding(){
   nicknameInput.focus();
 }
 
+/* =========================================================
+   허브 화면 (마라닉프렌즈 9기 메인) — 닉네임/목표 + 2x2 프로그램 카드
+   ========================================================= */
+function renderHub(){
+  app.innerHTML = `
+    <div class="fade-in">
+      <div class="text-center mt-6 mb-8">
+        <p class="text-xl font-semibold tracking-wide uppercase" style="color:var(--text)">마라닉프렌즈 9기</p>
+        <h1 class="font-display text-2xl font-bold mt-1">
+          <span class="sunset-text">${escapeHtml(state.nickname)}</span>님
+        </h1>
+      </div>
+
+      <div class="rounded-2xl p-4 mb-8 flex items-start justify-between gap-3" style="background:var(--bg-elev); border:1px solid var(--line);">
+        <div class="min-w-0">
+          <p class="text-xs" style="color:var(--text-dim)">🎯 나의 목표</p>
+          <p class="font-medium mt-1 truncate" style="color:var(--text)">${state.goal ? escapeHtml(state.goal) : '아직 목표를 정하지 않았어요'}</p>
+        </div>
+        <button id="edit-profile-btn" title="닉네임/목표 수정" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+          style="background:var(--bg-elev-2); color:var(--text-dim); border:1px solid var(--line);">✏️</button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <button type="button" class="hub-card" data-target="wip" data-title="풀코스">
+          <span class="hub-card-emoji">🏃‍♂️</span><span class="hub-card-label">풀코스</span>
+        </button>
+        <button type="button" class="hub-card" data-target="wip" data-title="하프코스">
+          <span class="hub-card-emoji">🏃</span><span class="hub-card-label">하프코스</span>
+        </button>
+        <button type="button" class="hub-card" data-target="wip" data-title="10K">
+          <span class="hub-card-emoji">👟</span><span class="hub-card-label">10K</span>
+        </button>
+        <button type="button" class="hub-card" data-target="marble" data-title="러닝마블">
+          <span class="hub-card-emoji">🎲</span><span class="hub-card-label">러닝마블</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('edit-profile-btn').addEventListener('click', openProfileEdit);
+  document.querySelectorAll('.hub-card').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(btn.dataset.target === 'marble'){
+        currentView = 'marble';
+      } else {
+        currentView = 'wip';
+        wipTitle = btn.dataset.title;
+      }
+      render();
+    });
+  });
+}
+
+/* =========================================================
+   작업중 화면 (풀코스/하프코스/10K)
+   ========================================================= */
+function renderWorkInProgress(){
+  app.innerHTML = `
+    <div class="fade-in">
+      <div class="flex items-center mb-8">
+        <button id="wip-back-btn" title="뒤로가기" class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+          style="background:var(--bg-elev); border:1px solid var(--line); color:var(--text-dim);">←</button>
+      </div>
+      <div class="flex flex-col items-center justify-center text-center" style="min-height:55vh;">
+        <div class="text-5xl mb-4">🚧</div>
+        <h1 class="font-display text-xl font-bold">${escapeHtml(wipTitle)}</h1>
+        <p class="text-sm mt-3 leading-relaxed" style="color:var(--text-dim)">훈련 프로그램을 준비 중이에요.<br>조금만 기다려주세요!</p>
+      </div>
+    </div>
+  `;
+  document.getElementById('wip-back-btn').addEventListener('click', goToHub);
+}
+
+/* =========================================================
+   닉네임 / 목표 수정 모달 (언제든지 변경 가능)
+   ========================================================= */
+function openProfileEdit(){
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal-card">
+      <div class="flex items-start justify-between">
+        <h2 class="font-display text-lg font-bold">닉네임 / 목표 수정</h2>
+        <button id="modal-close" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+          style="background:var(--bg-elev-2); color:var(--text-dim);">✕</button>
+      </div>
+      <label class="text-xs font-semibold tracking-wide uppercase mt-4 block" style="color:var(--text-dim)">닉네임</label>
+      <input id="edit-nickname-input" type="text" maxlength="12"
+        class="w-full mt-2 mb-4 px-4 py-3 rounded-xl outline-none text-base"
+        style="background:var(--bg-elev-2); border:1.5px solid var(--line); color:var(--text);">
+      <label class="text-xs font-semibold tracking-wide uppercase" style="color:var(--text-dim)">목표</label>
+      <input id="edit-goal-input" type="text" maxlength="40"
+        class="w-full mt-2 px-4 py-3 rounded-xl outline-none text-base"
+        style="background:var(--bg-elev-2); border:1.5px solid var(--line); color:var(--text);">
+      <button id="edit-save-btn" class="track-btn w-full mt-6 py-3 rounded-xl font-display font-bold text-white text-sm">저장하기</button>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+
+  const nickInput = backdrop.querySelector('#edit-nickname-input');
+  const goalInput = backdrop.querySelector('#edit-goal-input');
+  // innerHTML의 value 속성으로 넣지 않고 JS로 직접 세팅 (따옴표 등 특수문자로 인한 깨짐 방지)
+  nickInput.value = state.nickname || '';
+  goalInput.value = state.goal || '';
+
+  const close = ()=> backdrop.remove();
+  backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) close(); });
+  backdrop.querySelector('#modal-close').addEventListener('click', close);
+
+  const save = ()=>{
+    const nickVal = nickInput.value.trim();
+    if(!nickVal){ nickInput.focus(); nickInput.style.borderColor = 'var(--sunset-1)'; return; }
+    state.nickname = nickVal;
+    state.goal = goalInput.value.trim();
+    saveState(state);
+    close();
+    renderHub();
+  };
+  backdrop.querySelector('#edit-save-btn').addEventListener('click', save);
+  nickInput.addEventListener('keydown', e=>{ if(e.key==='Enter') goalInput.focus(); });
+  goalInput.addEventListener('keydown', e=>{ if(e.key==='Enter') save(); });
+}
+
 function renderGame(){
-  const totalCompletions = MISSION_INDICES.reduce((sum,i)=> sum + (state.levels[i]||0), 0); // START/무인도 제외 총 완료 횟수
+  const totalCompletions = MISSION_INDICES.reduce((sum,i)=> sum + (state.levels[i]||0), 0); // 중복 포함 총 완료 횟수
   const allMastered = MISSION_INDICES.every(i => (state.levels[i]||0) >= MAX_LEVEL);
   const rollsLeft = getRollsLeft();
   const bonusRolls = state.bonusRolls || 0;
@@ -528,29 +692,19 @@ function renderGame(){
 
   app.innerHTML = `
     <div class="fade-in">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <p class="text-base font-bold tracking-wide uppercase" style="color:var(--text-dim)">마라닉프렌즈 9기</p>
-          <h1 id="dashboard-title" class="font-display text-xl font-bold mt-0.5" style="user-select:none;">
-            <span class="sunset-text">${escapeHtml(state.nickname)}</span>님의 러닝 마블 판
-          </h1>
-        </div>
+      <div class="flex items-center justify-between mb-8">
+        <button id="marble-back-btn" title="뒤로가기" class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+          style="background:var(--bg-elev); border:1px solid var(--line); color:var(--text-dim);">←</button>
+        <h1 id="dashboard-title" class="font-display text-lg font-bold" style="user-select:none;">🎲 러닝 마블</h1>
         <button id="reset-btn-top" title="초기화" class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
           style="background:var(--bg-elev); border:1px solid var(--line); color:var(--text-dim);">
           ⟲
         </button>
       </div>
 
-      ${state.goal ? `
-      <div class="mb-4 rounded-xl px-4 py-2.5 flex items-center gap-2 text-medium" style="background:var(--bg-elev-2); border:1px solid var(--line);">
-        <span class="font-bold flex-shrink-0" style="color:var(--sunset-1)">🎯 나의 목표 :</span>
-        <span class="font-medium truncate" style="color:var(--text)">${escapeHtml(state.goal)}</span>
-      </div>
-      ` : ''}
-
       <div class="mb-16 rounded-2xl p-4 flex items-center justify-between gap-4" style="background:var(--bg-elev); border:1px solid var(--line);">
         <div>
-          <span class="text-xs" style="color:var(--text-dim)">총 미션 완료 개수</span>
+          <span class="text-xs" style="color:var(--text-dim)">총 완료 개수</span>
           <div id="progress-count" class="font-display text-2xl font-bold sunset-text">${totalCompletions}<span class="text-sm font-semibold" style="color:var(--text-dim)"> 회</span></div>
         </div>
         <div class="text-right">
@@ -568,6 +722,7 @@ function renderGame(){
         <div id="board-help" style="position:absolute; left:50%; top:73%; transform:translate(-50%,-50%); width:80%; z-index:3; text-align:center;">
           <p class="text-[10px]" style="color:var(--text-dim); white-space:nowrap;">각 이모티콘을 누르면 미션을 확인할 수 있어요</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">주사위는 하루에 1번만 굴릴 수 있어요</p>
+          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏁 START를 밟거나 지나치면 보너스 찬스 +1</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">❓물음표는 5가지 이벤트가 랜덤으로 나와요</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏝️ 무인도는 3번 안에 더블이 나와야 탈출해요</p>
         </div>
@@ -619,6 +774,7 @@ function renderGame(){
   document.getElementById('reset-btn-top').addEventListener('click', confirmReset);
   document.getElementById('reset-btn-bottom').addEventListener('click', confirmReset);
   document.getElementById('dashboard-title').addEventListener('click', handleAdminTap);
+  document.getElementById('marble-back-btn').addEventListener('click', goToHub);
 }
 
 function renderCells(){
@@ -800,6 +956,13 @@ function animateSteps(fromIndex, delta, onDone){
     }
     current = (current + dir + TOTAL_CELLS) % TOTAL_CELLS;
     remaining--;
+    // 정확히 도착(마지막 칸)이 아니라 '지나쳐 가는' 경우에도 START를 통과하면 보너스 지급
+    // (부루마불의 '월급' 규칙과 동일 — 밟든 지나치든 보상). 정확히 도착하는 경우는 resolveLanding에서 처리.
+    if(dir === 1 && current === 0 && remaining > 0){
+      state.bonusRolls = (state.bonusRolls || 0) + 1;
+      saveState(state);
+      showToast('🎉 START 통과! 무료 주사위 찬스 +1');
+    }
     positionToken(current, true);
     setTimeout(step, 480);
   }
@@ -943,7 +1106,7 @@ function openIslandEscape(onFinalDone){
 function pickRandomEventEffect(){
   const table = [
     { key:'start',    weight:3 },
-    { key:'forward3', weight:3 },
+    { key:'forward2', weight:3 },
     { key:'back2',    weight:3 },
     { key:'gift',     weight:3 },
     { key:'island',   weight:1 }, // 비교적 낮은 확률
@@ -959,9 +1122,9 @@ function runEventEffect(effect, index, depth, onFinalDone){
       positionToken(0, true);
       setTimeout(()=> resolveLanding(0, depth+1, onFinalDone), 480);
     });
-  } else if(effect === 'forward3'){
-    openEventConfirm('❓ 이벤트 칸', '📣 응원을 듬뿍 받았어요', '앞으로 3칸 이동하겠습니다', ()=>{
-      animateSteps(index, 3, (finalIdx)=> {
+  } else if(effect === 'forward2'){
+    openEventConfirm('❓ 이벤트 칸', '📣 응원을 듬뿍 받았어요', '앞으로 2칸 이동하겠습니다', ()=>{
+      animateSteps(index, 2, (finalIdx)=> {
         setTimeout(()=> resolveLanding(finalIdx, depth+1, onFinalDone), 550);
       });
     });
@@ -998,8 +1161,8 @@ function openMission(index){
 
   const eventLabel = isIsland ? '⚠️ 위험 칸' : null;
 
-  const LEVEL_COLOR = { 1:'--complete', 2:'--level2', 3:'--level3', 4:'--level4', 5:'--level5' };
-  const levelLabel = ['','1회 완료 · 초록','2회 완료 · 파랑','3회 완료 · 보라','4회 완료 · 오렌지','5회 완료 · 골드(마스터)'][level];
+  const LEVEL_COLOR = { 1:'--complete', 2:'--level2', 3:'--level3' };
+  const levelLabel = ['','1회 완료 · 초록','2회 완료 · 파랑','3회 완료 · 보라(마스터)'][level];
   const levelColorVar = level > 0 ? `var(${LEVEL_COLOR[Math.min(level, MAX_LEVEL)]})` : null;
   const levelDimVar = level > 0 ? `var(${LEVEL_COLOR[Math.min(level, MAX_LEVEL)]}-dim)` : null;
 
@@ -1007,8 +1170,12 @@ function openMission(index){
   if(canComplete){
     footerHtml = `
       ${level > 0 ? `<p class="text-xs mt-4" style="color:var(--text-dim)">현재 ${levelLabel} 상태예요. 다시 완료하면 다음 단계로 올라가요.</p>` : ''}
-      <div class="flex gap-3 mt-4">
-        <button id="complete-btn" class="flex-1 track-btn py-3 rounded-xl font-display font-bold text-white text-sm">미션 완료</button>
+      <label class="flex items-center gap-2 mt-4 px-3 py-2.5 rounded-xl text-xs font-medium select-none" style="background:var(--bg-elev-2); border:1px solid var(--line); color:var(--text); cursor:pointer;">
+        <input id="sns-confirm-checkbox" type="checkbox" class="w-4 h-4 flex-shrink-0" style="accent-color:var(--sunset-1);">
+        기본미션+특별미션 인증사진을 SNS에 올렸어요
+      </label>
+      <div class="flex gap-3 mt-3">
+        <button id="complete-btn" class="flex-1 track-btn py-3 rounded-xl font-display font-bold text-white text-sm" disabled style="opacity:.4; cursor:not-allowed;">미션 완료</button>
         <button id="modal-confirm" class="flex-1 py-3 rounded-xl font-display font-bold text-sm"
           style="background:var(--bg-elev-2); color:var(--text);">확인</button>
       </div>
@@ -1047,12 +1214,22 @@ function openMission(index){
   const confirmBtn = backdrop.querySelector('#modal-confirm');
   if(confirmBtn) confirmBtn.addEventListener('click', close);
   const completeBtn = backdrop.querySelector('#complete-btn');
+  const snsCheckbox = backdrop.querySelector('#sns-confirm-checkbox');
+  if(snsCheckbox && completeBtn){
+    snsCheckbox.addEventListener('change', ()=>{
+      completeBtn.disabled = !snsCheckbox.checked;
+      completeBtn.style.opacity = snsCheckbox.checked ? '1' : '.4';
+      completeBtn.style.cursor = snsCheckbox.checked ? 'pointer' : 'not-allowed';
+    });
+  }
   if(completeBtn){
     completeBtn.addEventListener('click', ()=>{
+      if(snsCheckbox && !snsCheckbox.checked) return; // SNS 인증 체크 전에는 완료 불가
       if(!state.completionUsed && (state.levels[index] || 0) < MAX_LEVEL){
         state.levels[index] = (state.levels[index] || 0) + 1;
-        state.score = (state.score || 0) + state.levels[index] * 10; // 1회10점,2회20점...5회50점
+        state.score = (state.score || 0) + state.levels[index] * 100; // 1회100점,2회200점,3회300점(마스터)
         state.completionUsed = true; // 이번 도착에서의 완료 기회는 다 썼음
+        checkLineBonuses(); // 방금 완료로 어떤 변이 다 채워졌는지 확인해서 보너스 지급
         saveState(state);
         renderCells();
         refreshProgress();
@@ -1061,6 +1238,21 @@ function openMission(index){
     });
   }
 }
+
+// 보드 4변(위/오른/아래/왼쪽) 중 방금 새로 다 채워진 변이 있으면 100점 보너스를 지급한다.
+// 한 변당 딱 1번만 지급되고, 그 변의 미션 4개가 각각 1회 이상 완료되면 조건이 충족된다.
+function checkLineBonuses(){
+  LINE_GROUPS.forEach((group, gi)=>{
+    if(state.lineBonusAwarded[gi]) return; // 이미 받은 변은 다시 안 줌
+    const allDone = group.indices.every(idx => (state.levels[idx] || 0) >= 1);
+    if(allDone){
+      state.lineBonusAwarded[gi] = true;
+      state.score = (state.score || 0) + LINE_BONUS_POINTS;
+      showToast(`🎉 ${group.name} 라인 완성! 보너스 +${LINE_BONUS_POINTS}점`, 2600);
+    }
+  });
+}
+
 
 /* =========================================================
    응원/물음표 칸: 이동하기 전에 확인 팝업을 띄운다
@@ -1099,6 +1291,7 @@ function openEventConfirm(label, title, desc, onProceed){
    ========================================================= */
 function openGiftPicker(giftIndex, depth, onFinalDone){
   let settled = false;
+  let selectedIdx = null;
   const finish = ()=>{ if(!settled){ settled = true; if(onFinalDone) onFinalDone(); } };
 
   // 보드 전체를 작게 그려서, 각 미션 칸의 완료 상태(색상)를 보고 고를 수 있게 한다.
@@ -1137,22 +1330,63 @@ function openGiftPicker(giftIndex, depth, onFinalDone){
         <button id="modal-close" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
           style="background:var(--bg-elev-2); color:var(--text-dim);">✕</button>
       </div>
-      <p class="text-sm mt-4 leading-relaxed" style="color:var(--text-dim)">지도를 보고 가고 싶은 미션 칸을 눌러주세요. 그 칸으로 바로 이동해요.</p>
+      <p class="text-sm mt-4 leading-relaxed" style="color:var(--text-dim)">지도에서 칸을 눌러 어떤 미션인지 확인한 다음, 이동할 칸을 정해주세요.</p>
       <div class="gift-mini-board mt-4">${miniCellsHtml}</div>
+
+      <div id="gift-preview" class="mt-4 rounded-xl p-3" style="background:var(--bg-elev-2); border:1px dashed var(--line); min-height:52px;">
+        <p class="text-xs" style="color:var(--text-dim)">👆 지도에서 칸을 눌러 미션을 확인해보세요</p>
+      </div>
+
+      <button id="gift-move-btn" class="w-full mt-4 track-btn py-3 rounded-xl font-display font-bold text-white text-sm" disabled style="opacity:.4;">
+        이 칸으로 이동하기
+      </button>
     </div>
   `;
   document.body.appendChild(backdrop);
 
+  const previewEl = backdrop.querySelector('#gift-preview');
+  const moveBtn = backdrop.querySelector('#gift-move-btn');
+
   const close = ()=>{ backdrop.remove(); finish(); };
   backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) close(); });
   backdrop.querySelector('#modal-close').addEventListener('click', close);
-  backdrop.querySelectorAll('.gift-mini-cell[data-idx]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const idx = parseInt(btn.dataset.idx, 10);
-      settled = true;
-      backdrop.remove();
-      positionToken(idx, true);
-      setTimeout(()=> resolveLanding(idx, depth+1, onFinalDone), 480);
+
+  backdrop.querySelectorAll('.gift-mini-cell[data-idx]').forEach(cell=>{
+    cell.addEventListener('click', ()=>{
+      // 이전 선택 표시 지우고 새로 선택한 칸 표시
+      backdrop.querySelectorAll('.gift-mini-cell.selected').forEach(el=> el.classList.remove('selected'));
+      cell.classList.add('selected');
+
+      const idx = parseInt(cell.dataset.idx, 10);
+      selectedIdx = idx;
+      const m = MISSIONS[idx];
+      const lvl = state.levels[idx] || 0;
+      const num = MISSION_NUMBER[idx];
+      const statusText = lvl >= MAX_LEVEL ? '🏅 마스터 완료' : lvl > 0 ? `✅ ${lvl}회 완료` : '아직 안 한 미션';
+
+      previewEl.innerHTML = `
+        <div class="flex items-center gap-3">
+          <span style="font-size:26px; flex-shrink:0;">${m.emoji}</span>
+          <div class="min-w-0">
+            <p class="text-sm font-bold truncate" style="color:var(--text)">${num}. ${escapeHtml(m.title)}</p>
+            <p class="text-xs mt-0.5" style="color:var(--text-dim)">${statusText}</p>
+          </div>
+        </div>
+        <p class="text-xs mt-2 leading-relaxed" style="color:var(--text-dim)">${escapeHtml(m.desc)}</p>
+      `;
+      moveBtn.disabled = false;
+      moveBtn.style.opacity = '1';
+    });
+  });
+
+  moveBtn.addEventListener('click', ()=>{
+    if(selectedIdx === null) return;
+    settled = true;
+    backdrop.remove();
+    // 순간이동이 아니라, 말이 시계방향으로 걸어서 이동한다 (그 과정에 START를 지나치면 보너스도 그대로 적용됨)
+    const forwardSteps = (selectedIdx - giftIndex + TOTAL_CELLS) % TOTAL_CELLS;
+    animateSteps(giftIndex, forwardSteps, (finalIdx)=> {
+      setTimeout(()=> resolveLanding(finalIdx, depth+1, onFinalDone), 550);
     });
   });
 }
