@@ -256,6 +256,36 @@
   .hub-card-emoji{ font-size:30px; }
   .hub-card-label{ font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; color:var(--text); }
 
+  /* ---- 10K 훈련 프로그램 체크리스트 ---- */
+  .training-row{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 14px;
+    background:var(--bg-elev);
+    border-bottom:1px solid var(--line);
+    transition:background .15s ease;
+  }
+  .training-row:last-child{ border-bottom:none; }
+  .training-row.done{ background:var(--complete-dim); }
+  .training-check{
+    width:28px; height:28px; flex-shrink:0;
+    border-radius:8px;
+    border:1.5px solid var(--line);
+    background:var(--bg-elev-2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px;
+    cursor:pointer;
+  }
+  .training-row.done .training-check{ border-color:var(--complete); background:#fff; }
+  .training-row-text{ flex:1; min-width:0; cursor:pointer; }
+  .training-date{
+    font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700;
+    color:var(--text-dim); margin:0;
+  }
+  .training-activity{
+    font-size:13px; font-weight:600; color:var(--text); margin:2px 0 0;
+  }
+  .training-row.done .training-activity{ color:var(--complete); }
+
   /* ---- Toast ---- */
   .toast{
     position:fixed;
@@ -285,25 +315,25 @@ const MAX_ROLLS_PER_DAY = 1; // 하루 최대 주사위 횟수
 
 const MISSIONS = [
   { emoji:'🏁', title:'START', desc:'마라닉프렌즈 9기, 2주간의 러닝 마블이 시작돼요.' },
-  { emoji:'🧊', title:'아이싱하기', desc:'무릎, 종아리 등 오늘 사용한 근육 아이싱하기' },
+  { emoji:'🧊', title:'아이싱하기', desc:'무릎, 종아리, 발목 아이싱하기' },
   { emoji:'🍦', title:'아이스크림런', desc:'러닝 후 아이스크림 하나로 나에게 상 주기 🍦' },
   { emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
-  { emoji:'⛰️', title:'업힐훈련하기', desc:'오르막 코스를 찾아 업힐 훈련 진행하기' },
+  { emoji:'⛰️', title:'업힐훈련하기', desc:'오르막 코스를 찾아 최소 1회 업힐 훈련 진행하기' },
   { emoji:'🥚', title:'계란 2개 챙겨먹기', desc:'회복을 위한 단백질! 오늘은 계란 2개 챙겨먹기' },
-  { emoji:'💌', title:'감성 인증 한 줄', desc:'인증할 때 오늘의 감성 문구 한 줄 남기기 예) "오늘 힘든 하루였지만, 달릴 수 있어 행복하다"' },
+  { emoji:'💌', title:'오늘의 생각 한 줄', desc:'인증할 때 오늘 러닝하면서 든 생각 한 줄 남기기 예) "오늘 힘든 하루였지만, 달릴 수 있어 행복하다"' },
   { emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
-  { emoji:'🏋️', title:'스쿼트 10개 3세트', desc:'하체 근력 강화! 스쿼트 10개 x 3세트' },
-  { emoji:'🛤️', title:'트랙에서 달리기', desc:'집 근처 트랙(운동장)에서 달리기' },
+  { emoji:'🏋️', title:'스쿼트 15개 3세트', desc:'하체 근력 강화! 스쿼트 15개 x 3세트' },
+  { emoji:'💆', title:'폼롤러 마사지', desc:'폼롤러로 종아리, 허벅지 등 마사지하기' },
   { emoji:'🏝️', title:'무인도', desc:'표류 주의! 무인도에 걸리면 주사위 2개로 탈출을 시도해야 해요. 3번 안에 같은 숫자(더블)가 나와야 탈출! 🏴‍☠️', isIsland:true },
-  { emoji:'🧢', title:'여름 러닝템 소개', desc:'요즘 애용하는 나만의 여름 러닝 아이템 소개하기' },
+  { emoji:'👣', title:'1만보 이상 걷기', desc:'오늘 걸음 수 1만보 이상 인증하기' },
   { emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
-  { emoji:'🍉', title:'수박런', desc:'무더운 여름, 수박 먹고 힘내서 달리는 수박런' },
+  { emoji:'🍉', title:'과일런', desc:'무더운 여름, 과일 먹고 힘내서 달리는 과일런' },
   { emoji:'💦', title:'땀으로 흠뻑 젖은 내 모습', desc:'오늘 러닝 끝나고 땀으로 흠뻑 젖은 모습 인증하기' },
-  { emoji:'🦵', title:'카프레이즈 20개 3세트', desc:'종아리 강화! 카프레이즈 20개 x 3세트' },
+  { emoji:'🦵', title:'러닝 후 카프레이즈 20개 3세트', desc:'종아리 강화! 카프레이즈 20개 x 3세트' },
   { emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
-  { emoji:'✍️', title:'마프 2행시', desc:'\'마\' \'프\'로 시작하는 2행시 짓기' },
-  { emoji:'🌅', title:'저녁 노을 러닝', desc:'하루를 마무리하는 노을 러닝 즐기기' },
-  { emoji:'🤸', title:'런지 10개 3세트', desc:'전신 밸런스! 런지 10개 x 3세트' },
+  { emoji:'✍️', title:'오늘 감사한 일 3가지 쓰기', desc:'인증 시 오늘 감사한 일 3가지 작성하기' },
+  { emoji:'💪', title:'플랭크 1분간 버티기', desc:'몇 번 나누어도 괜찮으니 플랭크 총 1분간 버티기' },
+  { emoji:'🦵🏼', title:'런지 15개 3세트', desc:'전신 밸런스! 런지 15개 x 3세트' },
 ];
 
 const TOTAL_CELLS = MISSIONS.length; // START + 미션 14개 + 무인도 1개 + 이벤트 칸 4개 = 20
@@ -328,6 +358,132 @@ const LINE_GROUPS = [
   { name: '왼쪽', indices: [15, 17, 18, 19] },
 ];
 const LINE_BONUS_POINTS = 100;
+
+// TIMP 로고 (base64로 파일 안에 내장 — 별도 이미지 파일 업로드 없이 단일 HTML로 동작)
+const LOGO_DATA_URI = 'data:image/png;base64,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';
+function miniLogoHtml(){
+  return `<img src="${LOGO_DATA_URI}" alt="TIMP" style="height:50px; width:auto; display:block;">`;
+}
+
+// 10K 훈련 프로그램 (2주치, 8/1~8/16)
+const TRAINING_10K = [
+  { week:1, date:'8/1 (토)', activity:'(3분 달리기 + 2분 걷기) × 5세트', desc:'약 3km 달리기+걷기, 걷기로 30분 운동 채우기' },
+  { week:1, date:'8/2 (일)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:1, date:'8/3 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:1, date:'8/4 (화)', activity:'(3분 달리기 + 2분 걷기) × 5세트', desc:'약 3km 달리기+걷기, 걷기로 30분 운동 채우기' },
+  { week:1, date:'8/5 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동: 스쿼트, 런지, 플랭크 등' },
+  { week:1, date:'8/6 (목)', activity:'(4분 달리기 + 2분 걷기) × 5세트', desc:'약 3.5km 달리기+걷기' },
+  { week:1, date:'8/7 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:1, date:'8/8 (토)', activity:'(4분 달리기 + 2분 걷기) × 7세트', desc:'약 5km 달리기+걷기' },
+  { week:1, date:'8/9 (일)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:2, date:'8/10 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:2, date:'8/11 (화)', activity:'(4분 뛰기 + 2분 걷기) × 5세트', desc:'약 3.5km 달리기+걷기' },
+  { week:2, date:'8/12 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동: 스쿼트, 런지, 플랭크 등' },
+  { week:2, date:'8/13 (목)', activity:'(4분 뛰기 + 2분 걷기) × 5세트', desc:'약 3.5km 달리기+걷기' },
+  { week:2, date:'8/14 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:2, date:'8/15 (토)', activity:'(5분 뛰기 + 2분 걷기) × 7세트', desc:'약 6km 달리기+걷기' },
+  { week:2, date:'8/16 (일)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+];
+
+// 하프 마라톤 훈련 프로그램 (2주치, 8/1~8/16)
+const TRAINING_HALF = [
+  { week:1, date:'8/1 (토)', activity:'3km 조깅', desc:'첫 시작 가볍게 스타트' },
+  { week:1, date:'8/2 (일)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:1, date:'8/3 (월)', activity:'4km 조깅', desc:'편안한 속도로 달리기' },
+  { week:1, date:'8/4 (화)', activity:'휴식 또는 걷기', desc:'(선택)보강운동: 스쿼트, 런지, 플랭크 등' },
+  { week:1, date:'8/5 (수)', activity:'5km 조깅', desc:'편안한 속도로 달리기' },
+  { week:1, date:'8/6 (목)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:1, date:'8/7 (금)', activity:'3km 조깅', desc:'편안한 속도로 달리기' },
+  { week:1, date:'8/8 (토)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:1, date:'8/9 (일)', activity:'8km 조깅', desc:'편안한 속도로 달리기' },
+  { week:2, date:'8/10 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:2, date:'8/11 (화)', activity:'4km 조깅', desc:'편안한 속도로 달리기' },
+  { week:2, date:'8/12 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동: 스쿼트, 런지, 플랭크 등' },
+  { week:2, date:'8/13 (목)', activity:'4km 조깅', desc:'편안한 속도로 달리기' },
+  { week:2, date:'8/14 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:2, date:'8/15 (토)', activity:'3km 조깅', desc:'편안한 속도로 달리기' },
+  { week:2, date:'8/16 (일)', activity:'10km 조깅', desc:'편안한 속도로 달리기' },
+];
+
+// 풀코스 마라톤 훈련 프로그램 (2주치, 8/1~8/16)
+const TRAINING_FULL = [
+  { week:1, date:'8/1 (토)', activity:'5km 조깅', desc:'첫 시작 가볍게 스타트' },
+  { week:1, date:'8/2 (일)', activity:'10km 조깅', desc:'편안한 속도로 달리기' },
+  { week:1, date:'8/3 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:1, date:'8/4 (화)', activity:'6km 조깅', desc:'편안한 속도로 달리기' },
+  { week:1, date:'8/5 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동 하체 : 스쿼트, 런지' },
+  { week:1, date:'8/6 (목)', activity:'10km 조깅', desc:'편안한 속도로 달리기' },
+  { week:1, date:'8/7 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:1, date:'8/8 (토)', activity:'5km 조깅', desc:'일요일 훈련 전 가볍게 몸 풀기' },
+  { week:1, date:'8/9 (일)', activity:'13km 조깅', desc:'달리기+걷기' },
+  { week:2, date:'8/10 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:2, date:'8/11 (화)', activity:'6km 조깅', desc:'편안한 속도로 달리기' },
+  { week:2, date:'8/12 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동 코어 : 플랭크' },
+  { week:2, date:'8/13 (목)', activity:'10km 조깅', desc:'편안한 속도로 달리기' },
+  { week:2, date:'8/14 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:2, date:'8/15 (토)', activity:'5km 조깅', desc:'일요일 훈련 전 가볍게 몸 풀기' },
+  { week:2, date:'8/16 (일)', activity:'15km 조깅', desc:'달리기+걷기' },
+];
+
+// 세 훈련 프로그램을 공통 화면에서 재사용하기 위한 메타 정보
+const TRAINING_PROGRAMS = {
+  training10k: { data: TRAINING_10K, title: '👟 10K 도전', subtitle: '8/1 ~ 8/16 · 세션1' },
+  trainingHalf: { data: TRAINING_HALF, title: '🏃 하프 마라톤', subtitle: '8/1 ~ 8/16 · 세션1' },
+  trainingFull: { data: TRAINING_FULL, title: '🏃\u200d♂️ 풀코스 마라톤', subtitle: '8/1 ~ 8/16 · 세션1' },
+};
+
+// 각 훈련 프로그램 안내문 (진행률 카드 아래 '여기를 먼저 눌러주세요' 버튼에서 표시)
+const PROGRAM_GUIDES = {
+  training10k: {
+    title: '👟 10K 도전 안내',
+    paragraphs: [
+      '이 프로그램은 10km 첫 완주를 목표로 하는 플랜이에요. 달리기를 시작한 누구나 이 훈련을 통해 10km를 완주할 수 있도록 도와줄 거예요.',
+    ],
+    bullets: [
+      '각 날짜를 누르면 자세한 훈련 설명을 볼 수 있어요.',
+      '매주 토요일은 거리를 늘리는 훈련을 진행해요. 훈련 중 힘들면 중간중간 숨을 돌리며 걸으셔도 괜찮아요.',
+      '뛰는 속도는 달리면서 대화 가능한 속도로 달리면 돼요.',
+    ],
+  },
+  trainingHalf: {
+    title: '🏃 하프 마라톤 안내',
+    paragraphs: [
+      '이 프로그램은 하프 마라톤 첫 완주를 목표로 하는 플랜이에요. 10km를 완주해 본 러너라면, 이 훈련을 통해 하프 마라톤까지 완주할 수 있도록 도와줄 거예요.',
+    ],
+    bullets: [
+      '각 날짜를 누르면 자세한 훈련 설명을 볼 수 있어요.',
+      '매주 일요일은 거리를 늘리는 훈련을 진행해요. 훈련 중 힘들면 중간중간 숨을 돌리며 걸으셔도 괜찮아요.',
+      '조깅 속도는 달리면서 대화 가능한 속도로 달리면 돼요.',
+    ],
+  },
+  trainingFull: {
+    title: '🏃\u200d♂️ 풀코스 마라톤 안내',
+    paragraphs: [
+      '이 프로그램은 풀코스 첫 완주를 목표로 하는 플랜이에요. 하프 마라톤을 완주해 본 러너라면, 이 훈련을 통해 풀코스까지 완주할 수 있도록 도와줄 거예요.',
+    ],
+    bullets: [
+      '각 날짜를 누르면 자세한 훈련 설명을 볼 수 있어요.',
+      '매주 일요일은 거리를 늘리는 훈련을 진행해요. 훈련 중 힘들면 중간중간 숨을 돌리며 걸으셔도 괜찮아요.',
+      '조깅 속도는 달리면서 대화 가능한 속도로 달리면 돼요.',
+    ],
+  },
+};
+
+// 러닝마블 규칙 안내문
+const MARBLE_GUIDE = {
+  title: '🎲 러닝마블 설명',
+  paragraphs: [],
+  bullets: [
+    '러닝마블은 선택적인 특별 미션이지만, 완료 횟수와 점수에 따라 우수 마프 선정에 반영돼요.',
+    '특별 미션은 기본 미션과 함께 인증해야 해요. 밴드 또는 인스타그램에 30분 이상 달리기·걷기 기록과 특별 미션 인증을 함께 올려주세요.',
+    '미션 하나를 완료하면 100점, 같은 미션을 2번째 수행하면 200점, 3번째 수행하면 300점을 획득해요 (최대 3회까지).',
+    '보드 한쪽 라인의 미션을 모두 완료하면 100점을 추가로 획득해요.',
+    '주사위는 하루에 한 번만 던질 수 있고, 출발선(START)에 도착하거나 지나치면 보너스 찬스가 1회 추가돼요.',
+    '무인도에 도착하면 주사위 2개를 던져 같은 숫자(더블)가 나와야 탈출할 수 있어요 (기회는 3번).',
+    '물음표 칸에 도착하면 7가지 이벤트 중 하나가 랜덤으로 발동해요: 앞으로 한 칸 / 앞으로 두 칸 / 뒤로 한 칸 / 뒤로 두 칸 / 출발지로 이동 / 원하는 칸으로 이동 / 무인도로 이동',
+  ],
+};
+
 
 
 /* =========================================================
@@ -375,6 +531,15 @@ function loadState(){
     }
     if(parsed && !Array.isArray(parsed.lineBonusAwarded)){
       parsed.lineBonusAwarded = LINE_GROUPS.map(()=> false);
+    }
+    if(parsed && (typeof parsed.training10k !== 'object' || parsed.training10k === null)){
+      parsed.training10k = {};
+    }
+    if(parsed && (typeof parsed.trainingHalf !== 'object' || parsed.trainingHalf === null)){
+      parsed.trainingHalf = {};
+    }
+    if(parsed && (typeof parsed.trainingFull !== 'object' || parsed.trainingFull === null)){
+      parsed.trainingFull = {};
     }
     // 보드 칸 구성이 여러 번 바뀌면서(무인도 → 응원/선물/물음표 추가) 배열 길이가 달라진 것을
     // '실제 미션 14개'의 순서를 기준으로 안전하게 재매핑한다. (START/이벤트 칸은 항상 레벨 0)
@@ -431,6 +596,9 @@ function freshState(nickname, goal){
     bonusRolls: 0,
     pendingPenalty: 0, // 무인도 페널티를 오늘 다 못 뺐을 때 내일로 넘기는 빚
     completionUsed: false, // 이번 도착에서 '미션 완료'를 이미 썼는지 (연타 방지)
+    training10k: {}, // 10K 훈련 프로그램 체크리스트 (day index -> boolean)
+    trainingHalf: {}, // 하프 마라톤 훈련 프로그램 체크리스트
+    trainingFull: {}, // 풀코스 마라톤 훈련 프로그램 체크리스트
     createdAt: Date.now(),
   };
 }
@@ -510,6 +678,7 @@ function render(){
     return;
   }
   if(currentView === 'marble') renderGame();
+  else if(TRAINING_PROGRAMS[currentView]) renderTrainingProgram(currentView);
   else if(currentView === 'wip') renderWorkInProgress();
   else renderHub();
 }
@@ -522,11 +691,11 @@ function goToHub(){
 function renderOnboarding(){
   app.innerHTML = `
     <div class="fade-in flex flex-col items-center justify-center" style="min-height:80vh;">
-      <div class="text-5xl mb-5">🏃‍♂️</div>
+      <img src="${LOGO_DATA_URI}" alt="TIMP - This is my pace" style="width:200px; height:auto; margin-bottom:20px;">
       <h1 class="font-display text-2xl font-bold text-center leading-snug">마라닉프렌즈 9기</h1>
       <div class="w-full mt-10 rounded-3xl p-6" style="background:var(--bg-elev); border:1px solid var(--line);">
         <label class="text-xs font-semibold tracking-wide uppercase" style="color:var(--text-dim)">닉네임을 입력해주세요</label>
-        <input id="nickname-input" type="text" maxlength="12" placeholder="예: 해피러너"
+        <input id="nickname-input" type="text" maxlength="20" placeholder="예: 네이버밴드(마피아) 닉네임 또는 인스타그램 계정"
           class="w-full mt-2 mb-4 px-4 py-3 rounded-xl outline-none text-base"
           style="background:var(--bg-elev-2); border:1.5px solid var(--line); color:var(--text);">
         
@@ -566,7 +735,8 @@ function renderOnboarding(){
 function renderHub(){
   app.innerHTML = `
     <div class="fade-in">
-      <div class="text-center mt-6 mb-8">
+      <div class="mb-4 flex justify-center">${miniLogoHtml()}</div>
+      <div class="text-center mt-2 mb-8">
         <p class="text-xl font-semibold tracking-wide uppercase" style="color:var(--text)">마라닉프렌즈 9기</p>
         <h1 class="font-display text-2xl font-bold mt-1">
           <span class="sunset-text">${escapeHtml(state.nickname)}</span>님
@@ -583,13 +753,13 @@ function renderHub(){
       </div>
 
       <div class="grid grid-cols-2 gap-4">
-        <button type="button" class="hub-card" data-target="wip" data-title="풀코스">
-          <span class="hub-card-emoji">🏃‍♂️</span><span class="hub-card-label">풀코스</span>
+        <button type="button" class="hub-card" data-target="trainingFull" data-title="풀코스 마라톤">
+          <span class="hub-card-emoji">🏃‍♂️</span><span class="hub-card-label">풀코스 마라톤</span>
         </button>
-        <button type="button" class="hub-card" data-target="wip" data-title="하프코스">
-          <span class="hub-card-emoji">🏃</span><span class="hub-card-label">하프코스</span>
+        <button type="button" class="hub-card" data-target="trainingHalf" data-title="하프 마라톤">
+          <span class="hub-card-emoji">🏃</span><span class="hub-card-label">하프 마라톤</span>
         </button>
-        <button type="button" class="hub-card" data-target="wip" data-title="10K">
+        <button type="button" class="hub-card" data-target="training10k" data-title="10K">
           <span class="hub-card-emoji">👟</span><span class="hub-card-label">10K</span>
         </button>
         <button type="button" class="hub-card" data-target="marble" data-title="러닝마블">
@@ -604,6 +774,8 @@ function renderHub(){
     btn.addEventListener('click', ()=>{
       if(btn.dataset.target === 'marble'){
         currentView = 'marble';
+      } else if(TRAINING_PROGRAMS[btn.dataset.target]){
+        currentView = btn.dataset.target;
       } else {
         currentView = 'wip';
         wipTitle = btn.dataset.title;
@@ -614,14 +786,16 @@ function renderHub(){
 }
 
 /* =========================================================
-   작업중 화면 (풀코스/하프코스/10K)
+   작업중 화면 (풀코스 마라톤/하프 마라톤/10K)
    ========================================================= */
 function renderWorkInProgress(){
   app.innerHTML = `
     <div class="fade-in">
-      <div class="flex items-center mb-8">
+      <div class="flex items-center justify-between mb-8">
         <button id="wip-back-btn" title="뒤로가기" class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
           style="background:var(--bg-elev); border:1px solid var(--line); color:var(--text-dim);">←</button>
+        ${miniLogoHtml()}
+        <div class="w-9"></div>
       </div>
       <div class="flex flex-col items-center justify-center text-center" style="min-height:55vh;">
         <div class="text-5xl mb-4">🚧</div>
@@ -631,6 +805,175 @@ function renderWorkInProgress(){
     </div>
   `;
   document.getElementById('wip-back-btn').addEventListener('click', goToHub);
+}
+
+/* =========================================================
+   훈련 프로그램 화면 (10K / 하프 마라톤 / 풀코스 마라톤 공용)
+   ========================================================= */
+function renderTrainingProgram(programKey){
+  const program = TRAINING_PROGRAMS[programKey];
+  const days = program.data;
+  const checks = state[programKey];
+  const doneCount = days.filter((_,i)=> !!checks[i]).length;
+  const weeks = [1, 2];
+
+  const weekHtml = weeks.map(w=>{
+    const rows = days.map((day, i)=>{
+      if(day.week !== w) return '';
+      const done = !!checks[i];
+      return `
+        <div class="training-row ${done ? 'done' : ''}" data-idx="${i}">
+          <button type="button" class="training-check" data-check-idx="${i}" aria-label="완료 체크">
+            ${done ? '✅' : ''}
+          </button>
+          <div class="training-row-text" data-info-idx="${i}">
+            <p class="training-date">${escapeHtml(day.date)}</p>
+            <p class="training-activity">${escapeHtml(day.activity)}</p>
+          </div>
+        </div>
+      `;
+    }).join('');
+    return `
+      <div class="mt-6">
+        <p class="text-xs font-bold tracking-wide uppercase mb-2" style="color:var(--text-dim)">${w}주차</p>
+        <div class="rounded-2xl overflow-hidden" style="border:1px solid var(--line);">${rows}</div>
+      </div>
+    `;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="fade-in">
+      <div class="flex items-center justify-between mb-8">
+        <button id="training-back-btn" title="뒤로가기" class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+          style="background:var(--bg-elev); border:1px solid var(--line); color:var(--text-dim);">←</button>
+        ${miniLogoHtml()}
+        <div class="w-9"></div>
+      </div>
+
+      <h1 class="font-display text-xl font-bold text-center">${program.title}</h1>
+      <p class="text-xs text-center mt-1" style="color:var(--text-dim)">${program.subtitle}</p>
+
+      <button id="program-guide-btn" type="button" class="w-full mt-6 py-2.5 rounded-xl text-xs font-bold"
+        style="background:var(--bg-elev-2); border:1px solid var(--sunset-1); color:var(--sunset-1);">
+        👉 여기를 먼저 눌러주세요
+      </button>
+
+      <div class="mt-4 rounded-2xl p-4" style="background:var(--bg-elev); border:1px solid var(--line);">
+        <div class="flex items-center justify-between text-xs mb-2">
+          <span style="color:var(--text-dim)">진행률</span>
+          <span class="font-display font-bold sunset-text">${doneCount} / ${days.length}</span>
+        </div>
+        <div class="w-full h-2 rounded-full overflow-hidden" style="background:var(--bg-elev-2)">
+          <div class="h-full rounded-full" style="width:${Math.round(doneCount/days.length*100)}%; background:linear-gradient(90deg,var(--sunset-1),var(--sunset-2)); transition:width .4s ease;"></div>
+        </div>
+      </div>
+
+      ${weekHtml}
+    </div>
+  `;
+
+  document.getElementById('training-back-btn').addEventListener('click', goToHub);
+  document.getElementById('program-guide-btn').addEventListener('click', ()=> openProgramGuide(programKey));
+
+  // 체크박스를 눌러도 바로 체크되지 않고, 날짜 클릭과 동일하게 먼저 훈련 내용을 보여준다.
+  // (거기서 '완료 체크하기'를 눌러야 실제로 체크됨)
+  document.querySelectorAll('.training-check[data-check-idx]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const i = parseInt(btn.dataset.checkIdx, 10);
+      openTrainingDayInfo(programKey, i);
+    });
+  });
+
+  document.querySelectorAll('.training-row-text[data-info-idx]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const i = parseInt(el.dataset.infoIdx, 10);
+      openTrainingDayInfo(programKey, i);
+    });
+  });
+}
+
+// 문단/불릿 형태의 안내문을 공용 팝업으로 띄운다 (훈련 프로그램 안내, 러닝마블 규칙 안내 등에서 재사용)
+function openGuideModal(guide){
+  const paragraphsHtml = (guide.paragraphs || [])
+    .map(p => `<p class="text-sm leading-relaxed" style="color:var(--text-dim)">${escapeHtml(p)}</p>`)
+    .join('');
+  const bulletsHtml = (guide.bullets || []).length ? `
+    <ul class="mt-3" style="padding-left:0; list-style:none;">
+      ${guide.bullets.map(b => `
+        <li class="text-sm leading-relaxed mt-2" style="color:var(--text-dim); display:flex; gap:6px;">
+          <span style="color:var(--sunset-1); flex-shrink:0;">•</span><span>${escapeHtml(b)}</span>
+        </li>
+      `).join('')}
+    </ul>
+  ` : '';
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal-card">
+      <div class="flex items-start justify-between">
+        <h2 class="font-display text-lg font-bold">${escapeHtml(guide.title)}</h2>
+        <button id="modal-close" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+          style="background:var(--bg-elev-2); color:var(--text-dim);">✕</button>
+      </div>
+      <div class="mt-4">${paragraphsHtml}${bulletsHtml}</div>
+      <button id="modal-confirm" class="track-btn w-full mt-6 py-3 rounded-xl font-display font-bold text-white text-sm">확인</button>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  const close = ()=> backdrop.remove();
+  backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) close(); });
+  backdrop.querySelector('#modal-close').addEventListener('click', close);
+  backdrop.querySelector('#modal-confirm').addEventListener('click', close);
+}
+
+function openProgramGuide(programKey){
+  openGuideModal(PROGRAM_GUIDES[programKey]);
+}
+
+function openMarbleGuide(){
+  openGuideModal(MARBLE_GUIDE);
+}
+
+function openTrainingDayInfo(programKey, i){
+  const program = TRAINING_PROGRAMS[programKey];
+  const day = program.data[i];
+  const done = !!state[programKey][i];
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal-card">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-xs font-semibold tracking-wide uppercase" style="color:var(--text-dim)">${escapeHtml(day.date)}</p>
+          <h2 class="font-display text-xl font-bold mt-1">${escapeHtml(day.activity)}</h2>
+        </div>
+        <button id="modal-close" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+          style="background:var(--bg-elev-2); color:var(--text-dim);">✕</button>
+      </div>
+      <p class="text-sm mt-4 leading-relaxed" style="color:var(--text-dim)">${escapeHtml(day.desc)}</p>
+      <div class="flex gap-3 mt-6">
+        <button id="training-toggle-btn" class="flex-1 py-3 rounded-xl font-display font-bold text-sm ${done ? '' : 'track-btn text-white'}"
+          style="${done ? 'background:var(--complete-dim); color:var(--complete); border:1px solid var(--complete);' : ''}">
+          ${done ? '✅ 완료 취소하기' : '완료 체크하기'}
+        </button>
+        <button id="modal-confirm" class="flex-1 py-3 rounded-xl font-display font-bold text-sm"
+          style="background:var(--bg-elev-2); color:var(--text);">확인</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  const close = ()=> backdrop.remove();
+  backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) close(); });
+  backdrop.querySelector('#modal-close').addEventListener('click', close);
+  backdrop.querySelector('#modal-confirm').addEventListener('click', close);
+  backdrop.querySelector('#training-toggle-btn').addEventListener('click', ()=>{
+    state[programKey][i] = !state[programKey][i];
+    saveState(state);
+    close();
+    renderTrainingProgram(programKey);
+  });
 }
 
 /* =========================================================
@@ -692,15 +1035,23 @@ function renderGame(){
 
   app.innerHTML = `
     <div class="fade-in">
-      <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center justify-between mb-4">
         <button id="marble-back-btn" title="뒤로가기" class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
           style="background:var(--bg-elev); border:1px solid var(--line); color:var(--text-dim);">←</button>
-        <h1 id="dashboard-title" class="font-display text-lg font-bold" style="user-select:none;">🎲 러닝 마블</h1>
+        ${miniLogoHtml()}
         <button id="reset-btn-top" title="초기화" class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
           style="background:var(--bg-elev); border:1px solid var(--line); color:var(--text-dim);">
           ⟲
         </button>
       </div>
+      <h1 id="dashboard-title" class="font-display text-lg font-bold text-center mb-8" style="user-select:none;">
+        <span class="sunset-text">${escapeHtml(state.nickname)}</span>의 러닝마블
+      </h1>
+
+      <button id="marble-guide-btn" type="button" class="w-full mb-4 py-2.5 rounded-xl text-xs font-bold"
+        style="background:var(--bg-elev-2); border:1px solid var(--sunset-1); color:var(--sunset-1);">
+        📖 러닝마블 설명을 꼭 읽어주세요!
+      </button>
 
       <div class="mb-16 rounded-2xl p-4 flex items-center justify-between gap-4" style="background:var(--bg-elev); border:1px solid var(--line);">
         <div>
@@ -775,6 +1126,7 @@ function renderGame(){
   document.getElementById('reset-btn-bottom').addEventListener('click', confirmReset);
   document.getElementById('dashboard-title').addEventListener('click', handleAdminTap);
   document.getElementById('marble-back-btn').addEventListener('click', goToHub);
+  document.getElementById('marble-guide-btn').addEventListener('click', openMarbleGuide);
 }
 
 function renderCells(){
@@ -1076,7 +1428,8 @@ function openIslandEscape(onFinalDone){
       d1El.classList.remove('rolling');
       d2El.classList.remove('rolling');
       const v1 = 1 + Math.floor(Math.random()*6);
-      const v2 = 1 + Math.floor(Math.random()*6);
+      const isLastAttempt = attemptsLeft === 1; // 시작값 3에서 여기가 마지막(3번째) 시도
+      const v2 = isLastAttempt ? v1 : (1 + Math.floor(Math.random()*6)); // 마지막 시도는 무조건 더블(탈출 보장)
       renderDicePips(v1, 'escape-dice1');
       renderDicePips(v2, 'escape-dice2');
       attemptsLeft--;
@@ -1104,12 +1457,15 @@ function openIslandEscape(onFinalDone){
 // 이벤트(물음표) 칸에 도착했을 때 발동할 효과를 가중치 기반으로 랜덤 선택한다.
 // 무인도로 보내는 효과는 확률을 낮게 유지한다.
 function pickRandomEventEffect(){
+  // 사용자가 직접 정한 확률(%) — 합계 100
   const table = [
-    { key:'start',    weight:3 },
-    { key:'forward2', weight:3 },
-    { key:'back2',    weight:3 },
-    { key:'gift',     weight:3 },
-    { key:'island',   weight:1 }, // 비교적 낮은 확률
+    { key:'island',   weight:5 },  // 무인도
+    { key:'gift',     weight:5 },  // 원하는 칸 이동
+    { key:'start',    weight:10 }, // 출발지 이동
+    { key:'forward1', weight:20 }, // 앞으로 한 칸
+    { key:'forward2', weight:20 }, // 앞으로 두 칸
+    { key:'back1',    weight:20 }, // 뒤로 한 칸
+    { key:'back2',    weight:20 }, // 뒤로 두 칸
   ];
   const pool = [];
   table.forEach(t => { for(let k=0;k<t.weight;k++) pool.push(t.key); });
@@ -1122,14 +1478,26 @@ function runEventEffect(effect, index, depth, onFinalDone){
       positionToken(0, true);
       setTimeout(()=> resolveLanding(0, depth+1, onFinalDone), 480);
     });
+  } else if(effect === 'forward1'){
+    openEventConfirm('❓ 이벤트 칸', '🍀 소소한 행운', '앞으로 1칸 이동하겠습니다', ()=>{
+      animateSteps(index, 1, (finalIdx)=> {
+        setTimeout(()=> resolveLanding(finalIdx, depth+1, onFinalDone), 550);
+      });
+    });
   } else if(effect === 'forward2'){
     openEventConfirm('❓ 이벤트 칸', '📣 응원을 듬뿍 받았어요', '앞으로 2칸 이동하겠습니다', ()=>{
       animateSteps(index, 2, (finalIdx)=> {
         setTimeout(()=> resolveLanding(finalIdx, depth+1, onFinalDone), 550);
       });
     });
+  } else if(effect === 'back1'){
+    openEventConfirm('❓ 이벤트 칸', '⚠️ 어이쿠!', '뒤로 1칸 이동하겠습니다', ()=>{
+      animateSteps(index, -1, (finalIdx)=> {
+        setTimeout(()=> resolveLanding(finalIdx, depth+1, onFinalDone), 550);
+      });
+    });
   } else if(effect === 'back2'){
-    openEventConfirm('❓ 이벤트 칸', '⚠️ 어이쿠!', '뒤로 2칸 이동하겠습니다', ()=>{
+    openEventConfirm('❓ 이벤트 칸', '⚠️ 이런!', '뒤로 2칸 이동하겠습니다', ()=>{
       animateSteps(index, -2, (finalIdx)=> {
         setTimeout(()=> resolveLanding(finalIdx, depth+1, onFinalDone), 550);
       });
