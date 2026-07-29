@@ -425,7 +425,7 @@ const TRAINING_FULL = [
   { week:1, date:'8/1 (토)', activity:'5km 조깅', desc:'- 준비 스트레칭 5분\n- 5km 가볍게 달리기\n- 정리 스트레칭' },
   { week:1, date:'8/2 (일)', activity:'10km 조깅', desc:'- 준비 스트레칭 5분\n- 10km 가볍게 달리기\n- 정리 스트레칭' },
   { week:1, date:'8/3 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:1, date:'8/4 (화)', activity:'6km 조깅 후 질주 5회', desc:'- 준비 스트레칭 5분\n- 6km조깅 -> (50m 질주(70%) + 걷기 회복) x 5회\n- 정리 스트레칭' },
+  { week:1, date:'8/4 (화)', activity:'6km 조깅 후 질주 5회', desc:'- 준비 스트레칭 5분\n- 6km조깅 -> [50m 질주(70%) + 걷기 회복] x 5회\n- 정리 스트레칭' },
   { week:1, date:'8/5 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동 하체 : 스쿼트, 런지' },
   { week:1, date:'8/6 (목)', activity:'10km 조깅', desc:'- 준비 스트레칭 5분\n- 10km 가볍게 달리기\n- 정리 스트레칭' },
   { week:1, date:'8/7 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
@@ -443,7 +443,7 @@ const TRAINING_FULL = [
 // 세 훈련 프로그램을 공통 화면에서 재사용하기 위한 메타 정보
 // 풀코스 기록반 세션1 (2주치, 8/1~8/16) — 완주 경험자를 위한 기록 향상 플랜
 const TRAINING_FULL_RECORD = [
-  { week:1, date:'8/1 (토)', activity:'조깅 30분 + 질주 5회', desc:'- 준비 스트레칭 5분\n- 조깅 30분 달리기\n- (70~80m 질주 + 걷기 회복) X 5회\n- 정리 스트레칭' },
+  { week:1, date:'8/1 (토)', activity:'조깅 30분 + 질주 5회', desc:'- 준비 스트레칭 5분\n- 조깅 30분 달리기\n- [70~80m 질주 + 걷기 회복] X 5회\n- 정리 스트레칭' },
   { week:1, date:'8/2 (일)', activity:'조깅 15km (빌드업)', desc:'- 준비 스트레칭 5분\n- 조깅 10km (MP+60~90초, 편안하게 시작)\n- 목표 페이스(MP) 유지 3km (레이스 페이스 감각 훈련)\n- 마무리 2km (MP-10초, 속도 올리되 무리하지 않기)\n- 정리 스트레칭' },
   { week:1, date:'8/3 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
   { week:1, date:'8/4 (화)', activity:'인터벌 400m/200m 8세트', desc:'- 준비 스트레칭 5분\n- 워밍업 조깅 20분\n- 인터벌 [400m(MP-20초) + 200m 회복] X 8회\n- 쿨다운 조깅 20분\n- 정리 스트레칭' },
@@ -462,8 +462,8 @@ const TRAINING_FULL_RECORD = [
 ];
 
 const TRAINING_PROGRAMS = {
-  training10k: { data: TRAINING_10K, title: '👟 10K 도전', subtitle: '8/1 ~ 8/16 · 세션1' },
-  trainingHalf: { data: TRAINING_HALF, title: '🏃 하프 마라톤', subtitle: '8/1 ~ 8/16 · 세션1' },
+  training10k: { data: TRAINING_10K, title: '👟 첫 10K 도전', subtitle: '8/1 ~ 8/16 · 세션1' },
+  trainingHalf: { data: TRAINING_HALF, title: '🏃 첫 하프 마라톤', subtitle: '8/1 ~ 8/16 · 세션1' },
   trainingFull: { data: TRAINING_FULL, title: '🏃\u200d♂️ 첫 풀코스 완주', subtitle: '8/1 ~ 8/16 · 세션1' },
   trainingFullRecord: { data: TRAINING_FULL_RECORD, title: '📈 풀코스 기록반', subtitle: '8/1 ~ 8/16 · 세션1' },
 };
@@ -819,23 +819,23 @@ function renderHub(){
       <div class="grid grid-cols-2 gap-4">
         <button type="button" class="hub-card" data-target="trainingFull" data-title="풀코스 마라톤 완주반">
           <span class="hub-card-emoji">🏁</span>
-          <span class="hub-card-label">풀코스 완주반</span>
-          <span class="hub-card-desc">풀코스 첫 완주가 목표라면</span>
+          <span class="hub-card-label">풀코스 마라톤</span>
+          <span class="hub-card-desc">첫 완주 플랜</span>
         </button>
         <button type="button" class="hub-card" data-target="trainingFullRecord" data-title="풀코스 마라톤 기록반">
           <span class="hub-card-emoji">📈</span>
           <span class="hub-card-label">풀코스 기록반</span>
-          <span class="hub-card-desc">완주 경험자의 기록 향상 플랜</span>
+          <span class="hub-card-desc">기록 향상 플랜</span>
         </button>
-        <button type="button" class="hub-card" data-target="trainingHalf" data-title="하프 마라톤">
+        <button type="button" class="hub-card" data-target="trainingHalf" data-title="하프 완주반">
           <span class="hub-card-emoji">🏃</span>
-          <span class="hub-card-label">하프 마라톤</span>
-          <span class="hub-card-desc">하프 마라톤 첫 완주 프로그램</span>
+          <span class="hub-card-label">하프마라톤</span>
+          <span class="hub-card-desc">첫 완주 플랜</span>
         </button>
         <button type="button" class="hub-card" data-target="training10k" data-title="10K">
           <span class="hub-card-emoji">👟</span>
           <span class="hub-card-label">10K</span>
-          <span class="hub-card-desc">10km 첫 완주 프로그램</span>
+          <span class="hub-card-desc">10km 첫 완주 플랜</span>
         </button>
       </div>
 
@@ -843,7 +843,7 @@ function renderHub(){
         <span class="hub-card-emoji">🎲</span>
         <span class="hub-card-text">
           <span class="hub-card-label">러닝마블</span>
-          <span class="hub-card-desc">매일 즐기는 미션 게임, 완료할수록 우수 마프 확률 UP!!</span>
+          <span class="hub-card-desc">완료할수록 우수 마프 확률 UP!!</span>
         </span>
       </button>
 
@@ -1155,7 +1155,7 @@ function renderGame(){
         <div id="cells-layer"></div>
         <div id="token"><div id="token-glow"></div><span style="position:relative;z-index:1;">🏃</span></div>
 
-        <div id="board-help" style="position:absolute; left:50%; top:73%; transform:translate(-50%,-50%); width:80%; z-index:3; text-align:center;">
+        <div id="board-help" style="position:absolute; left:50%; top:125%; transform:translate(-50%,-50%); width:80%; z-index:3; text-align:center;">
           <p class="text-[10px]" style="color:var(--text-dim); white-space:nowrap;">각 이모티콘을 누르면 미션을 확인할 수 있어요</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">주사위는 하루에 1번만 굴릴 수 있어요</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏁 START를 밟거나 지나치면 보너스 찬스 +1</p>
@@ -1163,7 +1163,7 @@ function renderGame(){
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏝️ 무인도는 3번 안에 더블이 나와야 탈출해요</p>
         </div>
 
-        <div style="position:absolute;left:50%;top:35%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px;z-index:3;">
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px;z-index:3;">
           ${state.adminMode ? `
             <div id="dice1" class="die"></div>
             <button id="roll-btn" class="track-btn px-6 py-2.5 rounded-full font-display font-bold text-white text-sm">
