@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>러닝 마블 | 마라닉프렌즈 9기</title>
+<title>러닝 마블 | 마라닉프렌즈 9기 </title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏃</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -351,34 +351,52 @@
 /* =========================================================
    데이터
    ========================================================= */
-const STORAGE_KEY = 'runningMarble_v1';
+const STORAGE_KEY = 'maranicsession2';
 const TOTAL_MISSION_CELLS = 14; // 실제 '미션' 칸 개수 (START, 무인도 제외)
 const MAX_LEVEL = 3; // 완료 단계: 1=초록, 2=파랑, 3=보라(마스터) — 블루마블 건물 업그레이드처럼 최대 3회
 const MAX_ROLLS_PER_DAY = 1; // 하루 최대 주사위 횟수
-const CAMPAIGN_START_DATE = '2026-08-01'; // 러닝마블 주사위를 시작할 수 있는 날짜 (관리자 모드는 예외)
+const CAMPAIGN_START_DATE = '2026-08-16'; // 러닝마블 주사위를 시작할 수 있는 날짜 (관리자 모드는 예외)
 
 const MISSIONS = [
-  { emoji:'🏁', title:'START', desc:'마라닉프렌즈 9기, 2주간의 러닝 마블이 시작돼요.' },
-  { emoji:'🧊', title:'아이싱하기', desc:'무릎, 종아리, 발목 아이싱하기' },
-  { emoji:'🍦', title:'아이스크림런', desc:'러닝 후 아이스크림 하나로 나에게 상 주기 🍦' },
-  { emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
-  { emoji:'⛰️', title:'업힐훈련하기', desc:'오르막 코스를 찾아 최소 1회 업힐 훈련 진행하기' },
-  { emoji:'🥚', title:'계란 2개 챙겨먹기', desc:'회복을 위한 단백질! 오늘은 계란 2개 챙겨먹기' },
-  { emoji:'💌', title:'오늘의 생각 한 줄', desc:'인증할 때 오늘 러닝하면서 든 생각 한 줄 남기기 예) "오늘 힘든 하루였지만, 달릴 수 있어 행복하다"' },
-  { emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
-  { emoji:'🏋️', title:'스쿼트 15개 3세트', desc:'하체 근력 강화! 스쿼트 15개 x 3세트' },
-  { emoji:'💆', title:'폼롤러 마사지', desc:'폼롤러로 종아리, 허벅지 등 마사지하기' },
-  { emoji:'🏝️', title:'무인도', desc:'표류 주의! 무인도에 걸리면 주사위 2개로 탈출을 시도해야 해요. 3번 안에 같은 숫자(더블)가 나와야 탈출! 🏴‍☠️', isIsland:true },
-  { emoji:'👣', title:'1만보 이상 걷기', desc:'오늘 걸음 수 1만보 이상 인증하기' },
-  { emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
-  { emoji:'🍉', title:'과일런', desc:'무더운 여름, 과일 먹고 힘내서 달리는 과일런' },
-  { emoji:'💦', title:'땀으로 흠뻑 젖은 내 모습', desc:'오늘 러닝 끝나고 땀으로 흠뻑 젖은 모습 인증하기' },
-  { emoji:'🦵', title:'러닝 후 카프레이즈 20개 3세트', desc:'종아리 강화! 카프레이즈 20개 x 3세트' },
-  { emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
-  { emoji:'✍️', title:'오늘 감사한 일 3가지 쓰기', desc:'인증 시 오늘 감사한 일 3가지 작성하기' },
-  { emoji:'💪', title:'플랭크 1분간 버티기', desc:'몇 번 나누어도 괜찮으니 플랭크 총 1분간 버티기' },
-  { emoji:'🦵🏼', title:'런지 15개 3세트', desc:'전신 밸런스! 런지 15개 x 3세트' },
+  { id:'start', emoji:'🏁', title:'START', desc:'마라닉프렌즈 9기, 2주간의 러닝 마블이 시작돼요.' },
+  { id:'icecream_run', emoji:'🍦', title:'아이스크림런', desc:'러닝 후 아이스크림 하나로 나에게 상 주기 🍦' },
+  { id:'wide_squat', emoji:'🏋️', title:'와이드 스쿼트 15개 3세트', desc:'중둔근, 내전근 강화! 와이드 스쿼트 15개 x 3세트' },
+  { id:'event1', emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
+  { id:'eggs', emoji:'🥚', title:'계란 2개 챙겨먹기', desc:'회복을 위한 단백질! 오늘은 계란 2개 챙겨먹기' },
+  { id:'sky_photo', emoji:'☁️', title:'오늘 하늘은 어떤가요?', desc:'러닝 전후 하늘 사진 찍어서 인증하기' },
+  { id:'icing', emoji:'🧊', title:'아이싱하기', desc:'무릎, 종아리, 발목 아이싱하기' },
+  { id:'event2', emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
+  { id:'walking_lunge', emoji:'🦵🏼', title:'워킹 런지 20걸음 3세트', desc:'앞으로 가면서 런지! 런지 20걸음 x 3세트' },
+  { id:'running_haiku', emoji:'3️⃣', title:'달리기로 삼행시', desc:'인증 시 "달리기"로 삼행시를 지어주세요!' },
+  { id:'island', emoji:'🏝️', title:'무인도', desc:'표류 주의! 무인도에 걸리면 주사위 2개로 탈출을 시도해야 해요. 3번 안에 같은 숫자(더블)가 나와야 탈출! 🏴‍☠️', isIsland:true },
+  { id:'bread_run', emoji:'🍞', title:'빵빵런', desc:'빵이나 떡으로 탄수화물 챙기기, 흰 식빵 1~2조각은 러닝 전 간단한 에너지원으로 쓰기 좋아요' },
+  { id:'event3', emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
+  { id:'foam_roller', emoji:'💆', title:'폼롤러 마사지', desc:'폼롤러로 종아리, 허벅지 등 마사지하기' },
+  { id:'pushup', emoji:'💪', title:'팔굽혀펴기 10개 3세트', desc:'무릎 대고 해도 괜찮아요! 자신 있으신 분들은 15~20개 3세트에 도전해보세요 💪' },
+  { id:'uphill', emoji:'⛰️', title:'오르막 훈련', desc:'오르막 코스를 찾아 최소 1회 업힐 훈련 진행하기 또는 트레드밀 경사도 설정해서 달리기' },
+  { id:'event4', emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
+  { id:'calf_raise', emoji:'🦵', title:'러닝 후 카프레이즈 30개 3세트', desc:'종아리 강화! 카프레이즈 30개 x 3세트' },
+  { id:'running_score', emoji:'✍️', title:'오늘의 러닝 점수는?', desc:'인증 시 오늘의 러닝 점수는 10점 만점 중 몇 점인지 그리고 그 이유 작성하기' },
+  { id:'visualize_goal', emoji:'👍🏻', title:'목표 달성한 나를 상상하며 달리기', desc:'완주 또는 기록 향상으로 골인하는 나를 상상하며 달리기. 이 미션은 따로 인증하기 힘드니 미션 완료 표시만 해주세요~' },
 ];
+
+// 배열 순서(자리)가 아니라 미션 고유 id로 완료 기록을 저장/조회하기 위한 헬퍼.
+// 나중에 미션 순서를 바꾸거나 새로 추가해도, id만 그대로면 기존 참가자 기록이 절대 안 섞인다.
+function missionIdAt(index){
+  const m = MISSIONS[index];
+  return m ? m.id : null;
+}
+function getLevel(index){
+  const id = missionIdAt(index);
+  if(!id || !state || !state.levels) return 0;
+  return state.levels[id] || 0;
+}
+function setLevel(index, val){
+  const id = missionIdAt(index);
+  if(!id || !state) return;
+  if(!state.levels) state.levels = {};
+  state.levels[id] = val;
+}
 
 const TOTAL_CELLS = MISSIONS.length; // START + 미션 14개 + 무인도 1개 + 이벤트 칸 4개 = 20
 const ISLAND_INDEX = MISSIONS.findIndex(m => m.isIsland);
@@ -630,41 +648,23 @@ function normalizeState(parsed){
     if(parsed && (typeof parsed.trainingFullRecord !== 'object' || parsed.trainingFullRecord === null)){
       parsed.trainingFullRecord = {};
     }
-    // 보드 칸 구성이 여러 번 바뀌면서(무인도 → 응원/선물/물음표 추가) 배열 길이가 달라진 것을
-    // '실제 미션 14개'의 순서를 기준으로 안전하게 재매핑한다. (START/이벤트 칸은 항상 레벨 0)
-    if(parsed && Array.isArray(parsed.levels) && parsed.levels.length !== TOTAL_CELLS){
+    // levels를 미션 id 기준 객체로 통일한다.
+    // - 예전 버전(배열 기반)이 남아있으면, '그 배열이 저장되던 시점의 순서'를 정확히 알 수 없으므로
+    //   최대한 앞에서부터 실제 미션 순서(MISSION_INDICES)에 맞춰 최선으로 옮겨준다.
+    // - 지금 버전부터는 항상 id 기반 객체로 저장되므로, 이후로는 미션 순서를 바꾸거나
+    //   새로 추가해도 기존 참가자 기록이 절대 안 섞인다.
+    if(parsed && Array.isArray(parsed.levels)){
       const oldLevels = parsed.levels;
-      const n = oldLevels.length;
-      let oldMissionLevels;
-      if(n === 15){
-        // v1: START(1) + 미션14, 이벤트 칸 없음
-        oldMissionLevels = oldLevels.slice(1);
-      } else if(n === 16){
-        // v2: START(1) + 미션7 + 무인도(1) + 미션7
-        oldMissionLevels = oldLevels.slice(1, 8).concat(oldLevels.slice(9, 16));
-      } else if(n === 19){
-        // v3: START(1) + 미션2 + 이벤트(1)@3 + 미션3 + 이벤트(1)@7 + 미션2 + 무인도(1)@10 + 미션4 + 이벤트(1)@15 + 미션3
-        // = index 1,2 / 4,5,6 / 8,9 / 11,12,13,14 / 16,17,18 (총 14개, 3/7/10/15 제외)
-        oldMissionLevels = [1,2,4,5,6,8,9,11,12,13,14,16,17,18].map(idx => oldLevels[idx]);
-      } else {
-        // 알 수 없는 이전 버전: 최대한 앞에서부터 14개를 가져온다(완벽하진 않을 수 있음)
-        oldMissionLevels = oldLevels.filter((_,i)=> i!==0).slice(0, 14);
-      }
-      const oldPos = parsed.position;
-      let oldMissionOrderOfPos = null; // 예전 위치가 '몇 번째 실제 미션'이었는지
-      if(typeof oldPos === 'number'){
-        if(n === 15 && oldPos >= 1) oldMissionOrderOfPos = oldPos - 1;
-        else if(n === 16 && oldPos >= 1 && oldPos !== 8) oldMissionOrderOfPos = oldPos < 8 ? oldPos - 1 : oldPos - 2;
-        else if(n === 19){
-          const v3MissionOrder = [1,2,4,5,6,8,9,11,12,13,14,16,17,18];
-          const found = v3MissionOrder.indexOf(oldPos);
-          if(found >= 0) oldMissionOrderOfPos = found;
-        }
-      }
-      const newLevels = Array(TOTAL_CELLS).fill(0);
-      MISSION_INDICES.forEach((idx, k) => { newLevels[idx] = oldMissionLevels[k] || 0; });
+      const newLevels = {};
+      MISSION_INDICES.forEach((idx) => {
+        const id = missionIdAt(idx);
+        if(id) newLevels[id] = oldLevels[idx] || 0;
+      });
       parsed.levels = newLevels;
-      parsed.position = (oldMissionOrderOfPos !== null) ? MISSION_INDICES[oldMissionOrderOfPos] : 0;
+      parsed.position = 0; // 예전 위치(배열 인덱스)는 지금 배열 순서와 안 맞을 수 있어 START로 안전하게 리셋
+    }
+    if(parsed && (typeof parsed.levels !== 'object' || parsed.levels === null)){
+      parsed.levels = {};
     }
     return parsed;
   }catch(e){ return parsed; }
@@ -687,7 +687,7 @@ function freshState(nickname, goal, pin){
     goal: goal || '',
     pin: pin || '', // 클라우드 백업/복구용 개인코드
     position: 0,
-    levels: Array(TOTAL_CELLS).fill(0),
+    levels: {}, // 미션 id 기준 완료 레벨 저장 (예: {icing: 2, icecream_run: 1, ...})
     score: 0,
     lineBonusAwarded: LINE_GROUPS.map(()=> false), // 변(라인) 보너스는 변마다 딱 1번만
     dailyRolls: { date: getTodayStr(), count: 0 },
@@ -716,21 +716,6 @@ function cloudDocRef(nickname, pin){
   const id = sanitizeForDocId(nickname) + '__' + sanitizeForDocId(pin);
   return window.__fb.doc(window.__fb.db, 'participants', id);
 }
-function levelsArrayToMap(arr){
-  const m = {};
-  (arr||[]).forEach((v,i)=>{ m[String(i)] = v || 0; });
-  return m;
-}
-function levelsMapToArray(map){
-  const arr = Array(TOTAL_CELLS).fill(0);
-  if(map && typeof map === 'object'){
-    Object.keys(map).forEach(k=>{
-      const i = parseInt(k,10);
-      if(!isNaN(i) && i>=0 && i<TOTAL_CELLS) arr[i] = map[k] || 0;
-    });
-  }
-  return arr;
-}
 
 // 참가자가 PIN을 처음 설정하는 순간(신규 가입 또는 기존 로컬 유저의 백업 설정)에만 호출.
 // 이 시점은 동시 접속 충돌 걱정이 없는 '최초 1회'라서 통짜로 써도 안전하다.
@@ -739,16 +724,14 @@ async function cloudCreateInitial(st){
   try{
     const ref = cloudDocRef(st.nickname, st.pin);
     if(!ref) return;
-    const { levels, ...rest } = st;
     await window.__fb.setDoc(ref, {
-      ...rest,
-      levels: levelsArrayToMap(levels),
+      ...st, // levels는 이제 로컬에서도 미션 id 기준 객체라 그대로 저장하면 됨
       updatedAt: window.__fb.serverTimestamp(),
     });
   }catch(e){ console.warn('cloud 초기 백업 실패:', e); }
 }
 
-// score/특정 미션 레벨처럼 '더하기'로만 안전하게 반영해야 하는 값들을 increment로 보낸다.
+// score/특정 미션 레벨(levels.미션id)처럼 '더하기'로만 안전하게 반영해야 하는 값들을 increment로 보낸다.
 async function cloudIncrement(fields){
   if(!window.__fb || !state || !state.nickname || !state.pin) return;
   try{
@@ -777,7 +760,7 @@ function scheduleCloudSync(){
         await window.__fb.setDoc(ref, { ...rest, updatedAt: window.__fb.serverTimestamp() }, { merge:true });
       }catch(e){ console.warn('cloud 동기화 실패:', e); }
     })();
-  }, 1500);
+  }, 7000); // 7초 안에 몰리는 저장은 한 번으로 묶어서 쓰기 횟수를 크게 줄인다
 }
 
 // 닉네임+PIN으로 클라우드에서 기록을 찾아 복구한다. 성공 시 정규화된 state 객체, 실패 시 null.
@@ -789,7 +772,6 @@ async function cloudFetchByNicknamePin(nickname, pin){
     const snap = await window.__fb.getDoc(ref);
     if(!snap.exists()) return null;
     const data = snap.data();
-    data.levels = levelsMapToArray(data.levels);
     delete data.updatedAt;
     return normalizeState(data);
   }catch(e){ console.warn('cloud 복구 실패:', e); return null; }
@@ -885,7 +867,7 @@ function renderOnboarding(){
   app.innerHTML = `
     <div class="fade-in flex flex-col items-center justify-center" style="min-height:80vh;">
       <img src="${LOGO_DATA_URI}" alt="TIMP - This is my pace" style="width:200px; height:auto; margin-bottom:20px;">
-      <h1 class="font-display text-2xl font-bold text-center leading-snug">마라닉프렌즈 9기</h1>
+      <h1 class="font-display text-2xl font-bold text-center leading-snug">마라닉 프렌즈 9기 세션2</h1>
       <div class="w-full mt-10 rounded-3xl p-6" style="background:var(--bg-elev); border:1px solid var(--line);">
         <label class="text-xs font-semibold tracking-wide uppercase" style="color:var(--text-dim)">닉네임을 입력해주세요</label>
         <input id="nickname-input" type="text" maxlength="20" placeholder="마피아런 또는 인스타그램 계정"
@@ -906,9 +888,9 @@ function renderOnboarding(){
         <button id="start-btn" class="track-btn w-full mt-6 py-3 rounded-xl font-display font-bold text-white text-sm">
           마라닉 프렌즈 9기 시작하기
         </button>
-        <p class="text-xs mt-3 text-center" style="color:var(--text-dim)">입력한 정보와 진행 상황은 이 기기에 저장되고, 닉네임+개인코드로 클라우드에도 안전하게 백업돼요.</p>
+        <p class="text-xs mt-3 text-center" style="color:var(--text-dim)">입력한 정보와 진행 상황은 이 기기에 저장되고, 닉네임+개인코드로 기록을 불러올 수 있어요.</p>
         <button id="restore-link-btn" type="button" class="w-full mt-4 text-xs font-semibold underline" style="color:var(--sunset-1);">
-          이미 참여하셨나요? 이전 기록 불러오기
+          다른 기기에서 접속하셨거나 기록이 사라졌나요? → 여기서 불러오기<br>(세션1 기록은 대상X)
         </button>
       </div>
     </div>
@@ -1009,19 +991,15 @@ function renderHub(){
     <div class="fade-in">
       <div class="mb-4 flex justify-center">${miniLogoHtml()}</div>
       <div class="text-center mt-2 mb-8">
-        <p class="text-xl font-semibold tracking-wide uppercase" style="color:var(--text)">마라닉프렌즈 9기</p>
+        <p class="text-xl font-semibold tracking-wide uppercase" style="color:var(--text)">마라닉프렌즈 9기 세션2</p>
         <h1 class="font-display text-2xl font-bold mt-1">
           <span class="sunset-text">${escapeHtml(state.nickname)}</span>님
         </h1>
       </div>
 
-      <div class="rounded-2xl p-4 mb-8 flex items-start justify-between gap-3" style="background:var(--bg-elev); border:1px solid var(--line);">
-        <div class="min-w-0">
-          <p class="text-xs" style="color:var(--text-dim)">🎯 나의 목표</p>
-          <p class="font-medium mt-1 truncate" style="color:var(--text)">${state.goal ? escapeHtml(state.goal) : '아직 목표를 정하지 않았어요'}</p>
-        </div>
-        <button id="edit-profile-btn" title="닉네임/목표 수정" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-          style="background:var(--bg-elev-2); color:var(--text-dim); border:1px solid var(--line);">✏️</button>
+      <div class="rounded-2xl p-4 mb-8" style="background:var(--bg-elev); border:1px solid var(--line);">
+        <p class="text-xs" style="color:var(--text-dim)">🎯 나의 목표</p>
+        <p class="font-medium mt-1 truncate" style="color:var(--text)">${state.goal ? escapeHtml(state.goal) : '아직 목표를 정하지 않았어요'}</p>
       </div>
 
       ${!state.pin ? `
@@ -1075,7 +1053,6 @@ function renderHub(){
     </div>
   `;
 
-  document.getElementById('edit-profile-btn').addEventListener('click', openProfileEdit);
   const setupBackupBtn = document.getElementById('setup-backup-btn');
   if(setupBackupBtn) setupBackupBtn.addEventListener('click', openSetupPinModal);
   document.getElementById('reset-btn-bottom').addEventListener('click', confirmReset);
@@ -1330,56 +1307,9 @@ function openSetupPinModal(){
   pinInput.focus();
 }
 
-function openProfileEdit(){
-  const backdrop = document.createElement('div');
-  backdrop.className = 'modal-backdrop';
-  backdrop.innerHTML = `
-    <div class="modal-card">
-      <div class="flex items-start justify-between">
-        <h2 class="font-display text-lg font-bold">닉네임 / 목표 수정</h2>
-        <button id="modal-close" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-          style="background:var(--bg-elev-2); color:var(--text-dim);">✕</button>
-      </div>
-      <label class="text-xs font-semibold tracking-wide uppercase mt-4 block" style="color:var(--text-dim)">닉네임(마피아런 또는 인스타그램 이름)</label>
-      <input id="edit-nickname-input" type="text" maxlength="12"
-        class="w-full mt-2 mb-4 px-4 py-3 rounded-xl outline-none text-base"
-        style="background:var(--bg-elev-2); border:1.5px solid var(--line); color:var(--text);">
-      <label class="text-xs font-semibold tracking-wide uppercase" style="color:var(--text-dim)">목표</label>
-      <input id="edit-goal-input" type="text" maxlength="40"
-        class="w-full mt-2 px-4 py-3 rounded-xl outline-none text-base"
-        style="background:var(--bg-elev-2); border:1.5px solid var(--line); color:var(--text);">
-      <button id="edit-save-btn" class="track-btn w-full mt-6 py-3 rounded-xl font-display font-bold text-white text-sm">저장하기</button>
-    </div>
-  `;
-  document.body.appendChild(backdrop);
-
-  const nickInput = backdrop.querySelector('#edit-nickname-input');
-  const goalInput = backdrop.querySelector('#edit-goal-input');
-  // innerHTML의 value 속성으로 넣지 않고 JS로 직접 세팅 (따옴표 등 특수문자로 인한 깨짐 방지)
-  nickInput.value = state.nickname || '';
-  goalInput.value = state.goal || '';
-
-  const close = ()=> backdrop.remove();
-  backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) close(); });
-  backdrop.querySelector('#modal-close').addEventListener('click', close);
-
-  const save = ()=>{
-    const nickVal = nickInput.value.trim();
-    if(!nickVal){ nickInput.focus(); nickInput.style.borderColor = 'var(--sunset-1)'; return; }
-    state.nickname = nickVal;
-    state.goal = goalInput.value.trim();
-    saveState(state);
-    close();
-    renderHub();
-  };
-  backdrop.querySelector('#edit-save-btn').addEventListener('click', save);
-  nickInput.addEventListener('keydown', e=>{ if(e.key==='Enter') goalInput.focus(); });
-  goalInput.addEventListener('keydown', e=>{ if(e.key==='Enter') save(); });
-}
-
 function renderGame(){
-  const totalCompletions = MISSION_INDICES.reduce((sum,i)=> sum + (state.levels[i]||0), 0); // 중복 포함 총 완료 횟수
-  const allMastered = MISSION_INDICES.every(i => (state.levels[i]||0) >= MAX_LEVEL);
+  const totalCompletions = MISSION_INDICES.reduce((sum,i)=> sum + getLevel(i), 0); // 중복 포함 총 완료 횟수
+  const allMastered = MISSION_INDICES.every(i => getLevel(i) >= MAX_LEVEL);
   const rollsLeft = getRollsLeft();
   const bonusRolls = state.bonusRolls || 0;
   const canStillRoll = rollsLeft > 0 || bonusRolls > 0;
@@ -1422,7 +1352,8 @@ function renderGame(){
         <div id="board-help" style="position:absolute; left:50%; top:125%; transform:translate(-50%,-50%); width:80%; z-index:3; text-align:center;">
           <p class="text-[10px]" style="color:var(--text-dim); white-space:nowrap;">각 이모티콘을 누르면 미션을 확인할 수 있어요</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">주사위는 하루에 1번만 굴릴 수 있어요</p>
-          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏁 START를 밟거나 지나치면 보너스 찬스 +1</p>
+          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏁 START를 밟거나 지나치면 주사위보너스 +1</p>
+          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">(보너스 주사위로 하루에 2회 이상 미션을 할 수 있어요)</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">❓물음표는 7가지 이벤트가 랜덤으로 나와요</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏝️ 무인도는 3번 안에 더블이 나와야 탈출해요</p>
         </div>
@@ -1439,7 +1370,7 @@ function renderGame(){
             <button id="roll-btn" class="track-btn px-6 py-2.5 rounded-full font-display font-bold text-white text-sm" disabled style="opacity:.4; cursor:not-allowed;">
               주사위 던지기
             </button>
-            <p class="text-xs text-center leading-relaxed" style="color:var(--text-dim)">러닝마블은 8월 1일부터<br>시작할 수 있어요</p>
+            <p class="text-xs text-center leading-relaxed" style="color:var(--text-dim)">세션2 러닝마블은 8월 16일부터<br>시작할 수 있어요</p>
           ` : allMastered ? `
             <div class="text-3xl">🏆</div>
             <p class="font-display font-bold text-sm text-center px-4" style="color:var(--complete)">모든 미션 마스터!</p>
@@ -1469,7 +1400,7 @@ function renderGame(){
   if(!notStartedYet && (state.adminMode || !allMastered)) renderDicePips(1, 'dice1');
 
   const rollBtn = document.getElementById('roll-btn');
-  if(rollBtn) rollBtn.addEventListener('click', onRoll);
+  if(rollBtn) rollBtn.addEventListener('click', handleRollClick);
   document.getElementById('dashboard-title').addEventListener('click', handleAdminTap);
   document.getElementById('marble-back-btn').addEventListener('click', goToHub);
   document.getElementById('marble-guide-btn').addEventListener('click', openMarbleGuide);
@@ -1485,7 +1416,7 @@ function renderCells(){
     const isIsland = !!mission.isIsland;
     const isRandomEvent = !!mission.isEvent; // 응원/선물/물음표가 통합된 랜덤 이벤트 칸
     const isEvent = isEventCell(mission); // 무인도 + 랜덤 이벤트 칸 전부 포함
-    const level = state.levels[i] || 0;
+    const level = getLevel(i);
     const div = document.createElement('div');
     let cls = 'cell';
     if(isStart) cls += ' start';
@@ -1547,12 +1478,12 @@ function renderDicePair(n1, n2){
 }
 
 function refreshProgress(){
-  const totalCompletions = MISSION_INDICES.reduce((sum,i)=> sum + (state.levels[i]||0), 0);
+  const totalCompletions = MISSION_INDICES.reduce((sum,i)=> sum + getLevel(i), 0);
   const countEl = document.getElementById('progress-count');
   if(countEl) countEl.innerHTML = `${totalCompletions}<span class="text-sm font-semibold" style="color:var(--text-dim)"> 회</span>`;
   const scoreEl = document.getElementById('progress-score');
   if(scoreEl) scoreEl.innerHTML = `${state.score || 0}<span class="text-sm font-semibold" style="color:var(--text-dim)"> 점</span>`;
-  const allMastered = MISSION_INDICES.every(i => (state.levels[i]||0) >= MAX_LEVEL);
+  const allMastered = MISSION_INDICES.every(i => getLevel(i) >= MAX_LEVEL);
   // 모든 칸이 3단계(빨강)까지 마스터되면 주사위 영역을 완주 화면으로 전환
   if(allMastered){
     renderGame();
@@ -1585,7 +1516,7 @@ function getValidRolls(){
     } else if(targetMission.isEvent){
       weight = W_EVENT;
     } else {
-      const lvl = state.levels[target] || 0;
+      const lvl = getLevel(target);
       if(lvl >= MAX_LEVEL) continue; // 마스터된 칸은 이동 대상에서 제외
       weight = (lvl === 0) ? W_UNVISITED : W_REVISIT;
     }
@@ -1593,6 +1524,65 @@ function getValidRolls(){
   }
   if(pool.length > 0) return pool;
   return [1,2,3,4,5,6];
+}
+
+// 지금 말이 서 있는 칸이 '아직 완료 안 한 실제 미션'인지 확인한다.
+// (START/이벤트/무인도는 대상 아님, 이미 마스터(레벨3)됐어도 대상 아님, 이번 도착에서 이미 완료했어도 대상 아님)
+function getPendingMissionAtPosition(){
+  const idx = state.position;
+  if(idx === 0) return null;
+  const mission = MISSIONS[idx];
+  if(!mission || isEventCell(mission)) return null;
+  if(state.completionUsed) return null;
+  if(getLevel(idx) >= MAX_LEVEL) return null;
+  return { index: idx, mission };
+}
+
+// 주사위 버튼을 눌렀을 때: 아직 완료 안 한 미션이 있으면 먼저 확인 팝업으로 붙잡고,
+// 없으면 바로 주사위를 굴린다.
+function handleRollClick(){
+  if(isRolling) return;
+  const pending = getPendingMissionAtPosition();
+  if(pending){
+    openPendingMissionWarning(pending);
+    return;
+  }
+  onRoll();
+}
+
+function openPendingMissionWarning(pending){
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal-card">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-xs font-semibold tracking-wide uppercase" style="color:var(--sunset-1)">⚠️ 잠깐만요!</p>
+          <h2 class="font-display text-xl font-bold mt-1">${pending.mission.emoji} ${escapeHtml(pending.mission.title)} 완료 안 하셨어요</h2>
+        </div>
+        <button id="modal-close" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+          style="background:var(--bg-elev-2); color:var(--text-dim);">✕</button>
+      </div>
+      <p class="text-sm mt-4 leading-relaxed" style="color:var(--text-dim)">지금 주사위를 굴리면 말이 다른 칸으로 이동해서, 이 미션은 다시 도착할 때까지 완료할 수 없어요. 정말 이대로 넘어갈까요?</p>
+      <div class="flex gap-3 mt-6">
+        <button id="pending-go-complete" class="flex-1 track-btn py-3 rounded-xl font-display font-bold text-white text-sm">미션 완료하러 가기</button>
+        <button id="pending-skip" class="flex-1 py-3 rounded-xl font-display font-bold text-sm"
+          style="background:var(--bg-elev-2); color:var(--text);">그냥 진행할게요</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  const close = ()=> backdrop.remove();
+  backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) close(); });
+  backdrop.querySelector('#modal-close').addEventListener('click', close);
+  backdrop.querySelector('#pending-go-complete').addEventListener('click', ()=>{
+    close();
+    openMission(pending.index);
+  });
+  backdrop.querySelector('#pending-skip').addEventListener('click', ()=>{
+    close();
+    onRoll();
+  });
 }
 
 function onRoll(){
@@ -1875,7 +1865,7 @@ function openMission(index){
   if(mission.isEvent) return; // 랜덤 이벤트 칸은 클릭 미리보기 자체가 없음
   const isIsland = !!mission.isIsland;
   const isEvent = isEventCell(mission);
-  const level = state.levels[index] || 0;
+  const level = getLevel(index);
   const mastered = level >= MAX_LEVEL;
   const canComplete = !isEvent && (index === state.position) && !mastered && !state.completionUsed;
 
@@ -1894,11 +1884,7 @@ function openMission(index){
         <input id="sns-confirm-checkbox" type="checkbox" class="w-4 h-4 flex-shrink-0" style="accent-color:var(--sunset-1);">
         기본미션+특별미션 인증사진을 SNS에 올렸어요
       </label>
-      <div class="flex gap-3 mt-3">
-        <button id="complete-btn" class="flex-1 track-btn py-3 rounded-xl font-display font-bold text-white text-sm" disabled style="opacity:.4; cursor:not-allowed;">미션 완료</button>
-        <button id="modal-confirm" class="flex-1 py-3 rounded-xl font-display font-bold text-sm"
-          style="background:var(--bg-elev-2); color:var(--text);">확인</button>
-      </div>
+      <button id="complete-btn" class="w-full track-btn py-3 rounded-xl font-display font-bold text-white text-sm mt-3" disabled style="opacity:.4; cursor:not-allowed;">미션 완료</button>
     `;
   } else {
     footerHtml = `
@@ -1945,12 +1931,12 @@ function openMission(index){
   if(completeBtn){
     completeBtn.addEventListener('click', ()=>{
       if(snsCheckbox && !snsCheckbox.checked) return; // SNS 인증 체크 전에는 완료 불가
-      if(!state.completionUsed && (state.levels[index] || 0) < MAX_LEVEL){
-        state.levels[index] = (state.levels[index] || 0) + 1;
-        const earnedPoints = state.levels[index] * 100; // 1회100점,2회200점,3회300점(마스터)
+      if(!state.completionUsed && getLevel(index) < MAX_LEVEL){
+        setLevel(index, getLevel(index) + 1);
+        const earnedPoints = getLevel(index) * 100; // 1회100점,2회200점,3회300점(마스터)
         state.score = (state.score || 0) + earnedPoints;
         state.completionUsed = true; // 이번 도착에서의 완료 기회는 다 썼음
-        cloudIncrement({ ['levels.' + index]: 1, score: earnedPoints }); // 클라우드에도 '더하기'로만 안전하게 반영
+        cloudIncrement({ ['levels.' + missionIdAt(index)]: 1, score: earnedPoints }); // 클라우드에도 '더하기'로만 안전하게 반영
         checkLineBonuses(); // 방금 완료로 어떤 변이 다 채워졌는지 확인해서 보너스 지급
         saveState(state);
         renderCells();
@@ -1966,7 +1952,7 @@ function openMission(index){
 function checkLineBonuses(){
   LINE_GROUPS.forEach((group, gi)=>{
     if(state.lineBonusAwarded[gi]) return; // 이미 받은 변은 다시 안 줌
-    const allDone = group.indices.every(idx => (state.levels[idx] || 0) >= 1);
+    const allDone = group.indices.every(idx => getLevel(idx) >= 1);
     if(allDone){
       state.lineBonusAwarded[gi] = true;
       state.score = (state.score || 0) + LINE_BONUS_POINTS;
@@ -2025,7 +2011,7 @@ function openGiftPicker(giftIndex, depth, onFinalDone){
     const isStart = i===0;
     const isIsland = !!m.isIsland;
     const isRandomEvent = !!m.isEvent;
-    const lvl = state.levels[i] || 0;
+    const lvl = getLevel(i);
     let cls = 'gift-mini-cell';
     if(isStart) cls += ' start';
     else if(isIsland) cls += ' island';
@@ -2083,7 +2069,7 @@ function openGiftPicker(giftIndex, depth, onFinalDone){
       const idx = parseInt(cell.dataset.idx, 10);
       selectedIdx = idx;
       const m = MISSIONS[idx];
-      const lvl = state.levels[idx] || 0;
+      const lvl = getLevel(idx);
       const num = MISSION_NUMBER[idx];
       const statusText = lvl >= MAX_LEVEL ? '🏅 마스터 완료' : lvl > 0 ? `✅ ${lvl}회 완료` : '아직 안 한 미션';
 
@@ -2179,7 +2165,44 @@ function showToast(msg, duration=2200){
   }, duration);
 }
 
+// 앱을 켤 때(새로고침 포함) 클라우드에 있는 점수/미션레벨이 로컬보다 높으면 로컬을 그 값으로 맞춰준다.
+// (여러 탭을 써서 로컬 화면이 순간적으로 예전 값처럼 보이는 경우를 자동으로 바로잡는 안전장치)
+// 절대 값을 "낮추지"는 않고, 더 큰 값이 있을 때만 끌어올린다.
+async function reconcileWithCloud(){
+  if(!window.__fb || !state || !state.nickname || !state.pin) return;
+  try{
+    const ref = cloudDocRef(state.nickname, state.pin);
+    if(!ref) return;
+    const snap = await window.__fb.getDoc(ref);
+    if(!snap.exists()) return;
+    const cloudData = snap.data();
+    let changed = false;
+
+    if(typeof cloudData.score === 'number' && cloudData.score > (state.score || 0)){
+      state.score = cloudData.score;
+      changed = true;
+    }
+
+    const cloudLevels = (cloudData.levels && typeof cloudData.levels === 'object') ? cloudData.levels : {};
+    Object.keys(cloudLevels).forEach(missionId=>{
+      const cloudVal = cloudLevels[missionId] || 0;
+      const localVal = (state.levels && state.levels[missionId]) || 0;
+      if(cloudVal > localVal){
+        if(!state.levels) state.levels = {};
+        state.levels[missionId] = cloudVal;
+        changed = true;
+      }
+    });
+
+    if(changed){
+      saveState(state);
+      if(currentView === 'hub' || currentView === 'marble') render();
+    }
+  }catch(e){ console.warn('cloud 보정 확인 실패:', e); }
+}
+
 render();
+reconcileWithCloud();
 </script>
 </body>
 </html>
