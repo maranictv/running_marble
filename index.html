@@ -1585,24 +1585,55 @@ function openPendingMissionWarning(pending){
   });
 }
 
-function onRoll(){
+// 다른 탭/기기에서 이미 오늘 주사위를 썼는지, 보너스를 이미 썼는지 클라우드에서 최신으로 확인한다.
+// (로컬 메모리만 보고 판단하면, 창 두 개를 새로고침 없이 각자 열어둔 채로 둘 다 굴려서
+// 하루 제한/보너스 개수를 실제보다 더 많이 쓸 수 있는 구멍이 생긴다 — 그걸 막기 위한 함수)
+async function syncRollAvailabilityFromCloud(){
+  if(!window.__fb || !state || !state.nickname || !state.pin) return;
+  try{
+    const ref = cloudDocRef(state.nickname, state.pin);
+    if(!ref) return;
+    const snap = await window.__fb.getDoc(ref);
+    if(!snap.exists()) return;
+    const cloudData = snap.data();
+    if(cloudData.dailyRolls && cloudData.dailyRolls.date === getTodayStr()){
+      const cloudCount = cloudData.dailyRolls.count || 0;
+      if(cloudCount > (state.dailyRolls.count || 0)){
+        state.dailyRolls = { date: getTodayStr(), count: cloudCount };
+      }
+    }
+    if(typeof cloudData.bonusRolls === 'number'){
+      state.bonusRolls = cloudData.bonusRolls; // increment 전용이라 클라우드 값이 항상 정확함
+    }
+    saveState(state);
+  }catch(e){ console.warn('주사위 가능 횟수 확인 실패:', e); }
+}
+
+async function onRoll(){
   if(isRolling) return;
   if(!state.adminMode && getTodayStr() < CAMPAIGN_START_DATE){
     showToast('🗓️ 러닝마블은 8월 1일부터 시작할 수 있어요');
     return;
   }
+
+  isRolling = true; // 아래 클라우드 확인하는 동안에도 중복 클릭 막기
+  if(!state.adminMode){
+    await syncRollAvailabilityFromCloud();
+  }
+
   const hasBonus = (state.bonusRolls || 0) > 0;
   if(!state.adminMode && getRollsLeft() <= 0 && !hasBonus){
+    isRolling = false;
     showToast('오늘 주사위를 모두 사용했어요! 내일 다시 도전해보세요');
     return;
   }
   const validRolls = getValidRolls();
   if(validRolls.length === 0){
+    isRolling = false;
     alert('지금 위치에서는 이동할 수 있는 칸이 없어요. 잠시 후 다시 시도해주세요!');
     return;
   }
 
-  isRolling = true;
   const rollBtn = document.getElementById('roll-btn');
   const die1 = document.getElementById('dice1');
   rollBtn.disabled = true;
