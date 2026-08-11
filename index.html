@@ -8,6 +8,34 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
+<script type="module">
+  // Firebase 연결 (Firestore) — 러닝마블 진행상황을 클라우드에도 백업/동기화한다.
+  // 로컬(localStorage)이 항상 1차 저장소라 네트워크가 느려도 앱은 그대로 잘 작동하고,
+  // Firestore 쪽은 "실패해도 무시하고 계속 진행"하는 best-effort 방식으로 붙인다.
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import {
+    getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBVH-FaAZFdbhU2MwiY8Krd8_z9SYMsywE",
+    authDomain: "test-runningmarble.firebaseapp.com",
+    projectId: "test-runningmarble",
+    storageBucket: "test-runningmarble.firebasestorage.app",
+    messagingSenderId: "872812379647",
+    appId: "1:872812379647:web:a0671a65b7676a559c7bca",
+    measurementId: "G-9NP7PH9CZE"
+  };
+
+  try{
+    const fbApp = initializeApp(firebaseConfig);
+    const db = getFirestore(fbApp);
+    window.__fb = { db, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp };
+  }catch(e){
+    console.warn('Firebase 초기화 실패 (로컬 저장만 사용됨):', e);
+    window.__fb = null;
+  }
+</script>
 <style>
   :root{
     --bg:#FBFAF7;
@@ -323,7 +351,7 @@
 /* =========================================================
    데이터
    ========================================================= */
-const STORAGE_KEY = 'test';
+const STORAGE_KEY = 'runningMarble_v1';
 const TOTAL_MISSION_CELLS = 14; // 실제 '미션' 칸 개수 (START, 무인도 제외)
 const MAX_LEVEL = 3; // 완료 단계: 1=초록, 2=파랑, 3=보라(마스터) — 블루마블 건물 업그레이드처럼 최대 3회
 const MAX_ROLLS_PER_DAY = 1; // 하루 최대 주사위 횟수
@@ -554,11 +582,9 @@ function getTodayStr(){
   return `${y}-${m}-${day}`;
 }
 
-function loadState(){
+function normalizeState(parsed){
+  if(!parsed) return null;
   try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return null;
-    const parsed = JSON.parse(raw);
     // 이전 버전(completed 불리언 배열) 데이터 마이그레이션
     if(parsed && !parsed.levels && parsed.completed){
       parsed.levels = parsed.completed.map(v => v ? 1 : 0);
@@ -579,6 +605,9 @@ function loadState(){
     // 목표(goal) 필드가 없는 기존 유저 대응 기본값 추가
     if(parsed && typeof parsed.goal !== 'string'){
       parsed.goal = '';
+    }
+    if(parsed && typeof parsed.pin !== 'string'){
+      parsed.pin = ''; // 클라우드 백업용 개인코드 (없으면 아직 백업 미설정 상태)
     }
     if(parsed && typeof parsed.score !== 'number'){
       parsed.score = 0;
@@ -638,15 +667,25 @@ function loadState(){
       parsed.position = (oldMissionOrderOfPos !== null) ? MISSION_INDICES[oldMissionOrderOfPos] : 0;
     }
     return parsed;
+  }catch(e){ return parsed; }
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    return normalizeState(JSON.parse(raw));
   }catch(e){ return null; }
 }
 function saveState(state){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  scheduleCloudSync();
 }
-function freshState(nickname, goal){
+function freshState(nickname, goal, pin){
   return {
     nickname,
     goal: goal || '',
+    pin: pin || '', // 클라우드 백업/복구용 개인코드
     position: 0,
     levels: Array(TOTAL_CELLS).fill(0),
     score: 0,
@@ -663,6 +702,99 @@ function freshState(nickname, goal){
     createdAt: Date.now(),
   };
 }
+
+/* =========================================================
+   클라우드 백업 (Firestore) — score/levels는 오직 increment(더하기)로만 반영해서
+   여러 탭/기기에서 동시에 저장해도 "나중 저장이 이전 기록을 덮어쓰는" 문제가 안 생기게 한다.
+   그 외 필드(position, 체크리스트 등)는 몇 초에 한 번씩 모아서 통짜로 백업한다.
+   ========================================================= */
+function sanitizeForDocId(str){
+  return String(str || '').trim().replace(/[\/\.\#\[\]\$\s]+/g, '_').slice(0, 200) || 'anon';
+}
+function cloudDocRef(nickname, pin){
+  if(!window.__fb) return null;
+  const id = sanitizeForDocId(nickname) + '__' + sanitizeForDocId(pin);
+  return window.__fb.doc(window.__fb.db, 'participants', id);
+}
+function levelsArrayToMap(arr){
+  const m = {};
+  (arr||[]).forEach((v,i)=>{ m[String(i)] = v || 0; });
+  return m;
+}
+function levelsMapToArray(map){
+  const arr = Array(TOTAL_CELLS).fill(0);
+  if(map && typeof map === 'object'){
+    Object.keys(map).forEach(k=>{
+      const i = parseInt(k,10);
+      if(!isNaN(i) && i>=0 && i<TOTAL_CELLS) arr[i] = map[k] || 0;
+    });
+  }
+  return arr;
+}
+
+// 참가자가 PIN을 처음 설정하는 순간(신규 가입 또는 기존 로컬 유저의 백업 설정)에만 호출.
+// 이 시점은 동시 접속 충돌 걱정이 없는 '최초 1회'라서 통짜로 써도 안전하다.
+async function cloudCreateInitial(st){
+  if(!window.__fb || !st.nickname || !st.pin) return;
+  try{
+    const ref = cloudDocRef(st.nickname, st.pin);
+    if(!ref) return;
+    const { levels, ...rest } = st;
+    await window.__fb.setDoc(ref, {
+      ...rest,
+      levels: levelsArrayToMap(levels),
+      updatedAt: window.__fb.serverTimestamp(),
+    });
+  }catch(e){ console.warn('cloud 초기 백업 실패:', e); }
+}
+
+// score/특정 미션 레벨처럼 '더하기'로만 안전하게 반영해야 하는 값들을 increment로 보낸다.
+async function cloudIncrement(fields){
+  if(!window.__fb || !state || !state.nickname || !state.pin) return;
+  try{
+    const ref = cloudDocRef(state.nickname, state.pin);
+    if(!ref) return;
+    const updateObj = { updatedAt: window.__fb.serverTimestamp() };
+    Object.entries(fields).forEach(([k,v])=>{ updateObj[k] = window.__fb.increment(v); });
+    await window.__fb.updateDoc(ref, updateObj);
+  }catch(e){
+    // 문서가 아직 없으면 updateDoc이 실패하니, 그럴 땐 초기 스냅샷부터 만들어준다.
+    cloudCreateInitial(state).catch(()=>{});
+  }
+}
+
+// score/levels를 제외한 나머지 필드(위치, 체크리스트 등)는 몇 초에 한 번씩 모아서 통짜로 백업.
+let __cloudPushTimer = null;
+function scheduleCloudSync(){
+  if(!window.__fb || !state || !state.nickname || !state.pin) return;
+  clearTimeout(__cloudPushTimer);
+  __cloudPushTimer = setTimeout(()=>{
+    (async ()=>{
+      try{
+        const ref = cloudDocRef(state.nickname, state.pin);
+        if(!ref) return;
+        const { score, levels, ...rest } = state; // score/levels는 increment 전용, 통짜 덮어쓰기에서 제외
+        await window.__fb.setDoc(ref, { ...rest, updatedAt: window.__fb.serverTimestamp() }, { merge:true });
+      }catch(e){ console.warn('cloud 동기화 실패:', e); }
+    })();
+  }, 1500);
+}
+
+// 닉네임+PIN으로 클라우드에서 기록을 찾아 복구한다. 성공 시 정규화된 state 객체, 실패 시 null.
+async function cloudFetchByNicknamePin(nickname, pin){
+  if(!window.__fb) return null;
+  try{
+    const ref = cloudDocRef(nickname, pin);
+    if(!ref) return null;
+    const snap = await window.__fb.getDoc(ref);
+    if(!snap.exists()) return null;
+    const data = snap.data();
+    data.levels = levelsMapToArray(data.levels);
+    delete data.updatedAt;
+    return normalizeState(data);
+  }catch(e){ console.warn('cloud 복구 실패:', e); return null; }
+}
+
 
 // 날짜가 바뀌었으면 오늘의 주사위 횟수를 리셋한다. 전날 넘어온 무인도 페널티가 있으면 반영한다.
 function ensureDailyRollsFresh(){
@@ -759,7 +891,13 @@ function renderOnboarding(){
         <input id="nickname-input" type="text" maxlength="20" placeholder="마피아런 또는 인스타그램 계정"
           class="w-full mt-2 mb-4 px-4 py-3 rounded-xl outline-none text-base"
           style="background:var(--bg-elev-2); border:1.5px solid var(--line); color:var(--text);">
-        
+
+        <label class="text-xs font-semibold tracking-wide uppercase" style="color:var(--text-dim)">개인 코드 (숫자 4자리)</label>
+        <input id="pin-input" type="tel" inputmode="numeric" maxlength="4" placeholder="예: 1234"
+          class="w-full mt-2 mb-4 px-4 py-3 rounded-xl outline-none text-base"
+          style="background:var(--bg-elev-2); border:1.5px solid var(--line); color:var(--text);">
+        <p class="text-xs -mt-3 mb-4" style="color:var(--text-dim)">기기를 바꾸거나 기록이 사라졌을 때 복구하는 데 쓰여요. 꼭 기억해두세요!</p>
+
         <label class="text-xs font-semibold tracking-wide uppercase" style="color:var(--text-dim)">마라닉 프렌즈 9기 목표</label>
         <input id="goal-input" type="text" maxlength="40" placeholder="10km 완주하기, 3kg 감량하기 등 자유롭게"
           class="w-full mt-2 px-4 py-3 rounded-xl outline-none text-base"
@@ -768,26 +906,99 @@ function renderOnboarding(){
         <button id="start-btn" class="track-btn w-full mt-6 py-3 rounded-xl font-display font-bold text-white text-sm">
           마라닉 프렌즈 9기 시작하기
         </button>
-        <p class="text-xs mt-3 text-center" style="color:var(--text-dim)">입력한 정보와 진행 상황은 이 기기(브라우저)에 저장돼요.</p>
+        <p class="text-xs mt-3 text-center" style="color:var(--text-dim)">입력한 정보와 진행 상황은 이 기기에 저장되고, 닉네임+개인코드로 클라우드에도 안전하게 백업돼요.</p>
+        <button id="restore-link-btn" type="button" class="w-full mt-4 text-xs font-semibold underline" style="color:var(--sunset-1);">
+          이미 참여하셨나요? 이전 기록 불러오기
+        </button>
       </div>
     </div>
   `;
 
   const nicknameInput = document.getElementById('nickname-input');
+  const pinInput = document.getElementById('pin-input');
   const goalInput = document.getElementById('goal-input');
   const btn = document.getElementById('start-btn');
   const submit = ()=>{
     const nickVal = nicknameInput.value.trim();
+    const pinVal = pinInput.value.trim();
     const goalVal = goalInput.value.trim();
     if(!nickVal){ nicknameInput.focus(); nicknameInput.style.borderColor = 'var(--sunset-1)'; return; }
-    state = freshState(nickVal, goalVal);
+    if(!/^\d{4}$/.test(pinVal)){ pinInput.focus(); pinInput.style.borderColor = 'var(--sunset-1)'; return; }
+    state = freshState(nickVal, goalVal, pinVal);
     saveState(state);
+    cloudCreateInitial(state); // 최초 1회이므로 통짜로 저장해도 안전함
     render();
   };
   btn.addEventListener('click', submit);
-  nicknameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') goalInput.focus(); });
+  nicknameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') pinInput.focus(); });
+  pinInput.addEventListener('keydown', e=>{ if(e.key==='Enter') goalInput.focus(); });
   goalInput.addEventListener('keydown', e=>{ if(e.key==='Enter') submit(); });
+  document.getElementById('restore-link-btn').addEventListener('click', openRestoreModal);
   nicknameInput.focus();
+}
+
+/* =========================================================
+   이전 기록 불러오기 (닉네임 + 개인코드로 클라우드에서 복구)
+   ========================================================= */
+function openRestoreModal(){
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal-card">
+      <div class="flex items-start justify-between">
+        <h2 class="font-display text-lg font-bold">☁️ 이전 기록 불러오기</h2>
+        <button id="modal-close" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+          style="background:var(--bg-elev-2); color:var(--text-dim);">✕</button>
+      </div>
+      <p class="text-xs mt-2" style="color:var(--text-dim)">처음 시작할 때 입력했던 닉네임과 개인 코드를 똑같이 입력해주세요.</p>
+      <label class="text-xs font-semibold tracking-wide uppercase mt-4 block" style="color:var(--text-dim)">닉네임</label>
+      <input id="restore-nickname-input" type="text" maxlength="20"
+        class="w-full mt-2 mb-4 px-4 py-3 rounded-xl outline-none text-base"
+        style="background:var(--bg-elev-2); border:1.5px solid var(--line); color:var(--text);">
+      <label class="text-xs font-semibold tracking-wide uppercase" style="color:var(--text-dim)">개인 코드 (숫자 4자리)</label>
+      <input id="restore-pin-input" type="tel" inputmode="numeric" maxlength="4"
+        class="w-full mt-2 px-4 py-3 rounded-xl outline-none text-base"
+        style="background:var(--bg-elev-2); border:1.5px solid var(--line); color:var(--text);">
+      <p id="restore-error" class="text-xs mt-2" style="color:var(--sunset-1); display:none;">일치하는 기록을 찾지 못했어요. 닉네임과 코드를 다시 확인해주세요.</p>
+      <button id="restore-submit-btn" class="track-btn w-full mt-6 py-3 rounded-xl font-display font-bold text-white text-sm">
+        불러오기
+      </button>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  const close = ()=> backdrop.remove();
+  backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) close(); });
+  backdrop.querySelector('#modal-close').addEventListener('click', close);
+
+  const nickInput = backdrop.querySelector('#restore-nickname-input');
+  const pinInput = backdrop.querySelector('#restore-pin-input');
+  const errorMsg = backdrop.querySelector('#restore-error');
+  const submitBtn = backdrop.querySelector('#restore-submit-btn');
+
+  submitBtn.addEventListener('click', async ()=>{
+    const nickVal = nickInput.value.trim();
+    const pinVal = pinInput.value.trim();
+    errorMsg.style.display = 'none';
+    if(!nickVal || !/^\d{4}$/.test(pinVal)){
+      errorMsg.textContent = '닉네임과 4자리 코드를 정확히 입력해주세요.';
+      errorMsg.style.display = 'block';
+      return;
+    }
+    submitBtn.disabled = true;
+    submitBtn.textContent = '불러오는 중...';
+    const restored = await cloudFetchByNicknamePin(nickVal, pinVal);
+    if(!restored){
+      errorMsg.textContent = '일치하는 기록을 찾지 못했어요. 닉네임과 코드를 다시 확인해주세요.';
+      errorMsg.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = '불러오기';
+      return;
+    }
+    state = restored;
+    saveState(state);
+    close();
+    render();
+  });
 }
 
 /* =========================================================
@@ -812,6 +1023,17 @@ function renderHub(){
         <button id="edit-profile-btn" title="닉네임/목표 수정" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
           style="background:var(--bg-elev-2); color:var(--text-dim); border:1px solid var(--line);">✏️</button>
       </div>
+
+      ${!state.pin ? `
+      <button id="setup-backup-btn" type="button" class="w-full mb-8 rounded-2xl p-4 flex items-center gap-3 text-left"
+        style="background:var(--level4-dim); border:1px solid var(--level4);">
+        <span style="font-size:22px;">☁️</span>
+        <span>
+          <span class="block text-sm font-bold" style="color:var(--text)">기록 백업이 아직 안 돼있어요</span>
+          <span class="block text-xs mt-0.5" style="color:var(--text-dim)">캐시를 지우거나 기기를 바꾸면 기록이 사라져요. 눌러서 백업해두세요!</span>
+        </span>
+      </button>
+      ` : ''}
 
       <div class="grid grid-cols-2 gap-4">
         <button type="button" class="hub-card" data-target="trainingFull" data-title="풀코스 마라톤 완주반">
@@ -854,6 +1076,8 @@ function renderHub(){
   `;
 
   document.getElementById('edit-profile-btn').addEventListener('click', openProfileEdit);
+  const setupBackupBtn = document.getElementById('setup-backup-btn');
+  if(setupBackupBtn) setupBackupBtn.addEventListener('click', openSetupPinModal);
   document.getElementById('reset-btn-bottom').addEventListener('click', confirmReset);
   document.querySelectorAll('.hub-card').forEach(btn=>{
     btn.addEventListener('click', ()=>{
@@ -1064,6 +1288,48 @@ function openTrainingDayInfo(programKey, i){
 /* =========================================================
    닉네임 / 목표 수정 모달 (언제든지 변경 가능)
    ========================================================= */
+/* =========================================================
+   기존 로컬 유저용: 개인 코드(PIN) 설정하고 지금까지의 기록을 클라우드에 백업
+   ========================================================= */
+function openSetupPinModal(){
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal-card">
+      <div class="flex items-start justify-between">
+        <h2 class="font-display text-lg font-bold">☁️ 기록 백업 설정</h2>
+        <button id="modal-close" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+          style="background:var(--bg-elev-2); color:var(--text-dim);">✕</button>
+      </div>
+      <p class="text-xs mt-2 leading-relaxed" style="color:var(--text-dim)">개인 코드(숫자 4자리)를 정해주세요. 나중에 기기를 바꾸거나 캐시가 지워졌을 때, 닉네임(${escapeHtml(state.nickname)})과 이 코드로 지금까지의 기록을 그대로 불러올 수 있어요. 꼭 기억해두세요!</p>
+      <label class="text-xs font-semibold tracking-wide uppercase mt-4 block" style="color:var(--text-dim)">개인 코드 (숫자 4자리)</label>
+      <input id="setup-pin-input" type="tel" inputmode="numeric" maxlength="4" placeholder="예: 1234"
+        class="w-full mt-2 px-4 py-3 rounded-xl outline-none text-base"
+        style="background:var(--bg-elev-2); border:1.5px solid var(--line); color:var(--text);">
+      <button id="setup-pin-submit" class="track-btn w-full mt-6 py-3 rounded-xl font-display font-bold text-white text-sm">
+        백업 설정 완료
+      </button>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  const close = ()=> backdrop.remove();
+  backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) close(); });
+  backdrop.querySelector('#modal-close').addEventListener('click', close);
+
+  const pinInput = backdrop.querySelector('#setup-pin-input');
+  backdrop.querySelector('#setup-pin-submit').addEventListener('click', ()=>{
+    const pinVal = pinInput.value.trim();
+    if(!/^\d{4}$/.test(pinVal)){ pinInput.focus(); pinInput.style.borderColor = 'var(--sunset-1)'; return; }
+    state.pin = pinVal;
+    saveState(state);
+    cloudCreateInitial(state); // 지금까지의 기록을 그대로 최초 백업 (최초 1회라 통짜 저장 안전함)
+    showToast('☁️ 백업이 설정됐어요!');
+    close();
+    renderHub();
+  });
+  pinInput.focus();
+}
+
 function openProfileEdit(){
   const backdrop = document.createElement('div');
   backdrop.className = 'modal-backdrop';
@@ -1681,8 +1947,10 @@ function openMission(index){
       if(snsCheckbox && !snsCheckbox.checked) return; // SNS 인증 체크 전에는 완료 불가
       if(!state.completionUsed && (state.levels[index] || 0) < MAX_LEVEL){
         state.levels[index] = (state.levels[index] || 0) + 1;
-        state.score = (state.score || 0) + state.levels[index] * 100; // 1회100점,2회200점,3회300점(마스터)
+        const earnedPoints = state.levels[index] * 100; // 1회100점,2회200점,3회300점(마스터)
+        state.score = (state.score || 0) + earnedPoints;
         state.completionUsed = true; // 이번 도착에서의 완료 기회는 다 썼음
+        cloudIncrement({ ['levels.' + index]: 1, score: earnedPoints }); // 클라우드에도 '더하기'로만 안전하게 반영
         checkLineBonuses(); // 방금 완료로 어떤 변이 다 채워졌는지 확인해서 보너스 지급
         saveState(state);
         renderCells();
@@ -1702,6 +1970,7 @@ function checkLineBonuses(){
     if(allDone){
       state.lineBonusAwarded[gi] = true;
       state.score = (state.score || 0) + LINE_BONUS_POINTS;
+      cloudIncrement({ score: LINE_BONUS_POINTS }); // 클라우드에도 '더하기'로만 안전하게 반영
       showToast(`🎉 ${group.name} 라인 완성! 보너스 +${LINE_BONUS_POINTS}점`, 2600);
     }
   });
