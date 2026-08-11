@@ -578,6 +578,7 @@ const MARBLE_GUIDE = {
   paragraphs: [],
   bullets: [
     '러닝마블은 선택적인 특별 미션이지만, 완료 횟수와 점수에 따라 우수 마프 확률이 올라가요.',
+    '러닝마블은 하나의 탭에서만 진행해주세요. 동시에 여러 탭·기기를 사용하면 기록이 꼬일 수 있어요.',
     '특별 미션은 기본 미션과 함께 인증해야 해요. 밴드 또는 인스타그램에 30분 이상 달리기·걷기 기록과 특별 미션 인증을 함께 올려주세요.',
     '미션 하나를 완료하면 100점, 같은 미션을 2번째 수행하면 200점, 3번째 수행하면 300점을 획득해요 (최대 3회까지).',
     '보드 한쪽 라인의 미션을 모두 완료하면 100점을 추가로 획득해요.',
@@ -1350,9 +1351,10 @@ function renderGame(){
         <div id="token"><div id="token-glow"></div><span style="position:relative;z-index:1;">🏃</span></div>
 
         <div id="board-help" style="position:absolute; left:50%; top:130%; transform:translate(-50%,-50%); width:80%; z-index:3; text-align:center;">
-          <p class="text-[10px]" style="color:var(--text-dim); white-space:nowrap;">각 이모티콘을 누르면 미션을 확인할 수 있어요</p>
-          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">주사위는 하루에 1번만 굴릴 수 있어요</p>
-          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏁 START를 밟거나 지나치면 주사위보너스 +1</p>
+          <p class="text-[10px]" style="color:var(--text-dim);">⚠️러닝마블은 하나의 탭에서만 진행해주세요<br>(동시에 여러 탭 사용 시 기록이 꼬일 수 있어요)</p>
+          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">📌각 이모티콘을 누르면 미션을 확인할 수 있어요</p>
+          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🎲주사위는 하루에 1번만 굴릴 수 있어요</p>
+          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏁 START를 밟거나 지나치면 주사위 보너스 +1</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">(보너스 주사위로 하루에 2회 이상 미션을 할 수 있어요)</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">❓물음표는 7가지 이벤트가 랜덤으로 나와요</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏝️ 무인도는 3번 안에 더블이 나와야 탈출해요</p>
@@ -1382,8 +1384,6 @@ function renderGame(){
             <p class="text-xs text-center" style="color:var(--text-dim)">
               ${rollsLeft > 0 ? `오늘 ${rollsLeft}/${MAX_ROLLS_PER_DAY}번 남음` : '오늘 기본 횟수 소진'}
               ${bonusRolls > 0 ? ` · 🎁 보너스 ${bonusRolls}개` : ''}
-  <p class="text-[11px] text-center mt-2" style="color:var(--text-dim);">러닝마블은 하나의 탭에서만 진행해주세요<br>(동시에 여러 탭 사용 시 기록이 꼬일 수 있어요)</p>
-
             </p>
           ` : `
             <div id="dice1" class="die"></div>
@@ -1391,7 +1391,6 @@ function renderGame(){
               주사위 던지기
             </button>
             <p class="text-xs text-center leading-relaxed" style="color:var(--text-dim)">오늘의 주사위 사용 완료<br>내일 다시 도전해보세요</p>
-            <p class="text-[10px] text-center mt-2" style="color:var(--text-dim);">러닝마블은 하나의 탭에서만 진행해주세요<br>(동시에 여러 탭 사용 시 기록이 꼬일 수 있어요)</p>
           `}
         </div>
       </div>
