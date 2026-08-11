@@ -1382,6 +1382,8 @@ function renderGame(){
             <p class="text-xs text-center" style="color:var(--text-dim)">
               ${rollsLeft > 0 ? `오늘 ${rollsLeft}/${MAX_ROLLS_PER_DAY}번 남음` : '오늘 기본 횟수 소진'}
               ${bonusRolls > 0 ? ` · 🎁 보너스 ${bonusRolls}개` : ''}
+  <p class="text-[11px] text-center mt-2" style="color:var(--text-dim);">러닝마블은 하나의 탭에서만 진행해주세요<br>(동시에 여러 탭 사용 시 기록이 꼬일 수 있어요)</p>
+
             </p>
           ` : `
             <div id="dice1" class="die"></div>
@@ -1389,6 +1391,7 @@ function renderGame(){
               주사위 던지기
             </button>
             <p class="text-xs text-center leading-relaxed" style="color:var(--text-dim)">오늘의 주사위 사용 완료<br>내일 다시 도전해보세요</p>
+            <p class="text-[10px] text-center mt-2" style="color:var(--text-dim);">러닝마블은 하나의 탭에서만 진행해주세요<br>(동시에 여러 탭 사용 시 기록이 꼬일 수 있어요)</p>
           `}
         </div>
       </div>
