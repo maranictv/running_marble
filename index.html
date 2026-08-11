@@ -351,7 +351,7 @@
 /* =========================================================
    데이터
    ========================================================= */
-const STORAGE_KEY = 'maranicsession2';
+const STORAGE_KEY = 'mfsession2';
 const TOTAL_MISSION_CELLS = 14; // 실제 '미션' 칸 개수 (START, 무인도 제외)
 const MAX_LEVEL = 3; // 완료 단계: 1=초록, 2=파랑, 3=보라(마스터) — 블루마블 건물 업그레이드처럼 최대 3회
 const MAX_ROLLS_PER_DAY = 1; // 하루 최대 주사위 횟수
@@ -2201,8 +2201,26 @@ async function reconcileWithCloud(){
   }catch(e){ console.warn('cloud 보정 확인 실패:', e); }
 }
 
+// Firebase는 <script type="module">로 비동기 로드되기 때문에, 페이지가 막 열린 시점엔
+// 아직 window.__fb가 준비 안 됐을 수 있다. 이 함수 없이 reconcileWithCloud()를 바로 부르면
+// "아직 준비 안 됐네" 하고 조용히 포기해버려서, 새로고침해도 클라우드 값을 영영 확인 못 하는 문제가 생긴다.
+// 그래서 최대 5초 동안 0.1초 간격으로 준비될 때까지 기다렸다가 실행한다.
+function waitForFirebaseReady(maxWaitMs){
+  return new Promise((resolve)=>{
+    const start = Date.now();
+    (function poll(){
+      if(window.__fb){ resolve(true); return; }
+      if(Date.now() - start > maxWaitMs){ resolve(false); return; }
+      setTimeout(poll, 100);
+    })();
+  });
+}
+
 render();
-reconcileWithCloud();
+waitForFirebaseReady(5000).then((ready)=>{
+  if(ready) reconcileWithCloud();
+  else console.warn('Firebase가 5초 안에 준비되지 않아 클라우드 보정을 건너뜀 (로컬 데이터는 정상 사용 가능)');
+});
 </script>
 </body>
 </html>
