@@ -756,7 +756,7 @@ function scheduleCloudSync(){
       try{
         const ref = cloudDocRef(state.nickname, state.pin);
         if(!ref) return;
-        const { score, levels, ...rest } = state; // score/levels는 increment 전용, 통짜 덮어쓰기에서 제외
+        const { score, levels, bonusRolls, ...rest } = state; // score/levels/bonusRolls는 increment 전용, 통짜 덮어쓰기에서 제외
         await window.__fb.setDoc(ref, { ...rest, updatedAt: window.__fb.serverTimestamp() }, { merge:true });
       }catch(e){ console.warn('cloud 동기화 실패:', e); }
     })();
@@ -888,9 +888,9 @@ function renderOnboarding(){
         <button id="start-btn" class="track-btn w-full mt-6 py-3 rounded-xl font-display font-bold text-white text-sm">
           마라닉 프렌즈 9기 시작하기
         </button>
-        <p class="text-xs mt-3 text-center" style="color:var(--text-dim)">입력한 정보와 진행 상황은 이 기기에 저장되고, 닉네임+개인코드로 기록을 불러올 수 있어요.</p>
+        <p class="text-xs mt-3 text-center" style="color:var(--text-dim)">닉네임+개인코드로 다른 기기·브라우저에서도 기록을 불러올 수 있어요.</p>
         <button id="restore-link-btn" type="button" class="w-full mt-4 text-xs font-semibold underline" style="color:var(--sunset-1);">
-          다른 기기에서 접속하셨거나 기록이 사라졌나요? → 여기서 불러오기<br>(세션1 기록은 대상X)
+          다른 기기에서 접속하셨거나 기록이 사라졌나요?<br>→ 여기서 불러오기 (세션2 기록만 가능)
         </button>
       </div>
     </div>
@@ -1349,7 +1349,7 @@ function renderGame(){
         <div id="cells-layer"></div>
         <div id="token"><div id="token-glow"></div><span style="position:relative;z-index:1;">🏃</span></div>
 
-        <div id="board-help" style="position:absolute; left:50%; top:125%; transform:translate(-50%,-50%); width:80%; z-index:3; text-align:center;">
+        <div id="board-help" style="position:absolute; left:50%; top:130%; transform:translate(-50%,-50%); width:80%; z-index:3; text-align:center;">
           <p class="text-[10px]" style="color:var(--text-dim); white-space:nowrap;">각 이모티콘을 누르면 미션을 확인할 수 있어요</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">주사위는 하루에 1번만 굴릴 수 있어요</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏁 START를 밟거나 지나치면 주사위보너스 +1</p>
@@ -1622,6 +1622,7 @@ function onRoll(){
         state.dailyRolls.count += 1;
       } else if(state.bonusRolls > 0){
         state.bonusRolls -= 1;
+        cloudIncrement({ bonusRolls: -1 }); // 클라우드에도 '빼기'로 안전하게 반영
       }
     }
     saveState(state);
@@ -1655,6 +1656,7 @@ function animateSteps(fromIndex, delta, onDone){
     if(dir === 1 && current === 0 && remaining > 0){
       state.bonusRolls = (state.bonusRolls || 0) + 1;
       saveState(state);
+      cloudIncrement({ bonusRolls: 1 }); // 클라우드에도 '더하기'로 안전하게 반영
       showToast('🎉 START 통과! 무료 주사위 찬스 +1');
     }
     positionToken(current, true);
@@ -1703,6 +1705,7 @@ function resolveLanding(index, depth, onFinalDone){
 function applyStartBonus(){
   state.bonusRolls = (state.bonusRolls || 0) + 1;
   saveState(state);
+  cloudIncrement({ bonusRolls: 1 }); // 클라우드에도 '더하기'로 안전하게 반영
   showToast('🎉 START 도착! 무료 주사위 찬스 +1');
 }
 
@@ -1780,6 +1783,7 @@ function openIslandEscape(onFinalDone){
       if(v1 === v2){
         state.bonusRolls = (state.bonusRolls || 0) + 1;
         saveState(state);
+        cloudIncrement({ bonusRolls: 1 }); // 클라우드에도 '더하기'로 안전하게 반영
         showToast('🎉 더블! 무인도 탈출 성공 — 주사위 찬스 +1');
         setTimeout(finish, 900);
       } else if(attemptsLeft <= 0){
@@ -2230,11 +2234,13 @@ async function reconcileWithCloud(){
       }
     }
 
-    // 보너스 찬스 / 무인도 페널티 이월은 더 큰 값을 따라간다(안전한 쪽으로).
-    if(typeof cloudData.bonusRolls === 'number' && cloudData.bonusRolls > (state.bonusRolls || 0)){
+    // 보너스 찬스는 이제 클라우드에서 오직 더하기/빼기(increment)로만 바뀌기 때문에,
+    // 클라우드 값이 항상 정확하다. 그래서 '더 큰 값'이 아니라 클라우드 값을 그대로 따라간다.
+    if(typeof cloudData.bonusRolls === 'number' && cloudData.bonusRolls !== (state.bonusRolls || 0)){
       state.bonusRolls = cloudData.bonusRolls;
       changed = true;
     }
+    // 무인도 페널티 이월은 더 큰 값을 따라간다(안전한 쪽으로).
     if(typeof cloudData.pendingPenalty === 'number' && cloudData.pendingPenalty > (state.pendingPenalty || 0)){
       state.pendingPenalty = cloudData.pendingPenalty;
       changed = true;
