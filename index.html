@@ -2194,6 +2194,52 @@ async function reconcileWithCloud(){
       }
     });
 
+    // 말의 위치(position)도 클라우드 기준으로 맞춘다.
+    // (이 함수는 페이지를 막 열었을 때 딱 한 번만 실행되고, 그 시점엔 이 기기에서 아직
+    // 새로 움직인 게 없으니 클라우드 값을 그대로 믿어도 안전하다 — 다른 기기에서 더 최근에
+    // 주사위를 굴렸다면 그 위치가 곧 가장 최신 위치이기 때문)
+    if(typeof cloudData.position === 'number' && cloudData.position !== state.position){
+      state.position = cloudData.position;
+      changed = true;
+    }
+
+    // 훈련 프로그램 체크리스트(10K/하프/풀코스 완주반/풀코스 기록반)는 "OR 병합"한다.
+    // 즉 이 기기든 다른 기기든 어느 한쪽이라도 체크했으면 체크된 걸로 본다.
+    // (체크는 기본적으로 한 방향으로만 진행되는 동작이라, 둘 중 하나라도 체크했으면
+    // 안 지워지게 유지하는 게 안전하다 — 다른 기기에서 체크한 걸 이 기기가 다시 저장할 때
+    // 실수로 덮어써서 지워버리는 사고를 막아준다)
+    ['training10k','trainingHalf','trainingFull','trainingFullRecord'].forEach(key=>{
+      const cloudChecks = (cloudData[key] && typeof cloudData[key] === 'object') ? cloudData[key] : {};
+      if(!state[key]) state[key] = {};
+      Object.keys(cloudChecks).forEach(dayIdx=>{
+        if(cloudChecks[dayIdx] && !state[key][dayIdx]){
+          state[key][dayIdx] = true;
+          changed = true;
+        }
+      });
+    });
+
+    // 오늘 주사위를 이미 몇 번 썼는지는, 다른 기기가 이미 더 많이 썼다면 그 값을 따라간다.
+    // (이걸 안 맞추면 한쪽 기기가 "하루 1회 제한"을 모르고 또 굴릴 수 있음)
+    if(cloudData.dailyRolls && cloudData.dailyRolls.date === getTodayStr()){
+      const cloudCount = cloudData.dailyRolls.count || 0;
+      const localCount = (state.dailyRolls && state.dailyRolls.date === getTodayStr()) ? (state.dailyRolls.count || 0) : 0;
+      if(cloudCount > localCount){
+        state.dailyRolls = { date: getTodayStr(), count: cloudCount };
+        changed = true;
+      }
+    }
+
+    // 보너스 찬스 / 무인도 페널티 이월은 더 큰 값을 따라간다(안전한 쪽으로).
+    if(typeof cloudData.bonusRolls === 'number' && cloudData.bonusRolls > (state.bonusRolls || 0)){
+      state.bonusRolls = cloudData.bonusRolls;
+      changed = true;
+    }
+    if(typeof cloudData.pendingPenalty === 'number' && cloudData.pendingPenalty > (state.pendingPenalty || 0)){
+      state.pendingPenalty = cloudData.pendingPenalty;
+      changed = true;
+    }
+
     if(changed){
       saveState(state);
       if(currentView === 'hub' || currentView === 'marble') render();
