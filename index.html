@@ -18,13 +18,13 @@
   } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
   const firebaseConfig = {
-    apiKey: "AIzaSyB5MkQD-o1o55j1DPbpKXnKsdiXiEE7v2M",
-    authDomain: "maranicfriends9-session2.firebaseapp.com",
-    projectId: "maranicfriends9-session2",
-    storageBucket: "maranicfriends9-session2.firebasestorage.app",
-    messagingSenderId: "576515316447",
-    appId: "1:576515316447:web:e1655aef4bedab4a0e276a",
-    measurementId: "G-76D5VSR6E7"
+    apiKey: "AIzaSyBVH-FaAZFdbhU2MwiY8Krd8_z9SYMsywE",
+    authDomain: "test-runningmarble.firebaseapp.com",
+    projectId: "test-runningmarble",
+    storageBucket: "test-runningmarble.firebasestorage.app",
+    messagingSenderId: "872812379647",
+    appId: "1:872812379647:web:a0671a65b7676a559c7bca",
+    measurementId: "G-9NP7PH9CZE"
   };
 
   try{
@@ -351,7 +351,7 @@
 /* =========================================================
    데이터
    ========================================================= */
-const STORAGE_KEY = 'maranicfriends session2';
+const STORAGE_KEY = 'maranicfriends session2 test';
 const TOTAL_MISSION_CELLS = 14; // 실제 '미션' 칸 개수 (START, 무인도 제외)
 const MAX_LEVEL = 3; // 완료 단계: 1=초록, 2=파랑, 3=보라(마스터) — 블루마블 건물 업그레이드처럼 최대 3회
 const MAX_ROLLS_PER_DAY = 1; // 하루 최대 주사위 횟수
@@ -791,6 +791,29 @@ function ensureDailyRollsFresh(){
 function getRollsLeft(){
   ensureDailyRollsFresh();
   return Math.max(0, MAX_ROLLS_PER_DAY - state.dailyRolls.count);
+}
+
+/* =========================================================
+   관리자 모드 (닉네임 타이틀을 짧은 시간 안에 5번 연속 탭) — 테스트 파일 전용
+   ========================================================= */
+let adminTapCount = 0;
+let adminTapTimer = null;
+const ADMIN_TAP_TARGET = 5;
+const ADMIN_TAP_WINDOW = 700; // ms
+
+function handleAdminTap(){
+  adminTapCount++;
+  if(adminTapTimer) clearTimeout(adminTapTimer);
+  adminTapTimer = setTimeout(()=>{ adminTapCount = 0; }, ADMIN_TAP_WINDOW);
+
+  if(adminTapCount >= ADMIN_TAP_TARGET){
+    adminTapCount = 0;
+    clearTimeout(adminTapTimer);
+    state.adminMode = !state.adminMode;
+    saveState(state);
+    showToast(state.adminMode ? '🔓 관리자 모드 ON — 주사위 무제한' : '🔒 관리자 모드 OFF', 1800);
+    renderGame();
+  }
 }
 
 let state = loadState();
@@ -1383,6 +1406,7 @@ function renderGame(){
   document.getElementById('marble-back-btn').addEventListener('click', goToHub);
   document.getElementById('marble-refresh-btn').addEventListener('click', handleManualRefresh);
   document.getElementById('marble-guide-btn').addEventListener('click', openMarbleGuide);
+  document.getElementById('dashboard-title').addEventListener('click', handleAdminTap);
 }
 
 function renderCells(){
