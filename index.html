@@ -18,13 +18,13 @@
   } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
   const firebaseConfig = {
-    apiKey: "AIzaSyBVH-FaAZFdbhU2MwiY8Krd8_z9SYMsywE",
-    authDomain: "test-runningmarble.firebaseapp.com",
-    projectId: "test-runningmarble",
-    storageBucket: "test-runningmarble.firebasestorage.app",
-    messagingSenderId: "872812379647",
-    appId: "1:872812379647:web:a0671a65b7676a559c7bca",
-    measurementId: "G-9NP7PH9CZE"
+    apiKey: "AIzaSyB5MkQD-o1o55j1DPbpKXnKsdiXiEE7v2M",
+    authDomain: "maranicfriends9-session2.firebaseapp.com",
+    projectId: "maranicfriends9-session2",
+    storageBucket: "maranicfriends9-session2.firebasestorage.app",
+    messagingSenderId: "576515316447",
+    appId: "1:576515316447:web:e1655aef4bedab4a0e276a",
+    measurementId: "G-76D5VSR6E7"
   };
 
   try{
@@ -351,11 +351,11 @@
 /* =========================================================
    데이터
    ========================================================= */
-const STORAGE_KEY = 'mfsession2';
+const STORAGE_KEY = 'maranicfriends session2';
 const TOTAL_MISSION_CELLS = 14; // 실제 '미션' 칸 개수 (START, 무인도 제외)
 const MAX_LEVEL = 3; // 완료 단계: 1=초록, 2=파랑, 3=보라(마스터) — 블루마블 건물 업그레이드처럼 최대 3회
 const MAX_ROLLS_PER_DAY = 1; // 하루 최대 주사위 횟수
-const CAMPAIGN_START_DATE = '2026-08-01'; // 러닝마블 주사위를 시작할 수 있는 날짜 (관리자 모드는 예외)
+const CAMPAIGN_START_DATE = '2026-08-16'; // 러닝마블 주사위를 시작할 수 있는 날짜 (관리자 모드는 예외)
 
 const MISSIONS = [
   { id:'start', emoji:'🏁', title:'START', desc:'마라닉프렌즈 9기, 2주간의 러닝 마블이 시작돼요.' },
@@ -363,21 +363,21 @@ const MISSIONS = [
   { id:'wide_squat', emoji:'🏋️', title:'와이드 스쿼트 15개 3세트', desc:'중둔근, 내전근 강화! 와이드 스쿼트 15개 x 3세트' },
   { id:'event1', emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
   { id:'eggs', emoji:'🥚', title:'계란 2개 챙겨먹기', desc:'회복을 위한 단백질! 오늘은 계란 2개 챙겨먹기' },
-  { id:'sky_photo', emoji:'☁️', title:'오늘 하늘은 어떤가요?', desc:'러닝 전후 하늘 사진 찍어서 인증하기' },
+  { id:'sky_photo', emoji:'☁️', title:'오늘 하늘은 어떤가요?', desc:'하늘 사진 찍어서 인증하기' },
   { id:'icing', emoji:'🧊', title:'아이싱하기', desc:'무릎, 종아리, 발목 아이싱하기' },
   { id:'event2', emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
   { id:'walking_lunge', emoji:'🦵🏼', title:'워킹 런지 20걸음 3세트', desc:'앞으로 가면서 런지! 런지 20걸음 x 3세트' },
-  { id:'running_haiku', emoji:'3️⃣', title:'달리기로 삼행시', desc:'인증 시 "달리기"로 삼행시를 지어주세요!' },
+  { id:'running_haiku', emoji:'3️⃣', title:'삼행시 짓기', desc:'인증 회차에 따라 아래 단어로 삼행시를 지어주세요!\n\n1회차 : 달리기\n\n2회차 : 마라톤\n\n3회차 : 풀코스' },
   { id:'island', emoji:'🏝️', title:'무인도', desc:'표류 주의! 무인도에 걸리면 주사위 2개로 탈출을 시도해야 해요. 3번 안에 같은 숫자(더블)가 나와야 탈출! 🏴‍☠️', isIsland:true },
-  { id:'bread_run', emoji:'🍞', title:'빵빵런', desc:'빵이나 떡으로 탄수화물 챙기기, 흰 식빵 1~2조각은 러닝 전 간단한 에너지원으로 쓰기 좋아요' },
+  { id:'bread_run', emoji:'🍞', title:'빵빵런', desc:'빵이나 떡으로 탄수화물 챙기기 Tip.흰 식빵 1~2조각은 러닝 전 빠르고 간단한 에너지원으로 쓰기 좋아요' },
   { id:'event3', emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
   { id:'foam_roller', emoji:'💆', title:'폼롤러 마사지', desc:'폼롤러로 종아리, 허벅지 등 마사지하기' },
-  { id:'pushup', emoji:'💪', title:'팔굽혀펴기 10개 3세트', desc:'무릎 대고 해도 괜찮아요! 자신 있으신 분들은 15~20개 3세트에 도전해보세요 💪' },
+  { id:'pushup', emoji:'💪', title:'팔굽혀펴기 10개 3세트', desc:'무릎 대고 해도 괜찮고 할 수 있는 만큼만 하셔도 좋아요! 자신 있으신 분들은 15~20개 3세트💪' },
   { id:'uphill', emoji:'⛰️', title:'오르막 훈련', desc:'오르막 코스를 찾아 최소 1회 업힐 훈련 진행하기 또는 트레드밀 경사도 설정해서 달리기' },
   { id:'event4', emoji:'❓', title:'이벤트 칸', desc:'도착하면 랜덤 효과가 발동해요', isEvent:true },
-  { id:'calf_raise', emoji:'🦵', title:'러닝 후 카프레이즈 30개 3세트', desc:'종아리 강화! 카프레이즈 30개 x 3세트' },
+  { id:'calf_raise', emoji:'🦵', title:'러닝 후 카프레이즈 20개 3세트', desc:'종아리 강화! 카프레이즈 20개 x 3세트' },
   { id:'running_score', emoji:'✍️', title:'오늘의 러닝 점수는?', desc:'인증 시 오늘의 러닝 점수는 10점 만점 중 몇 점인지 그리고 그 이유 작성하기' },
-  { id:'visualize_goal', emoji:'👍🏻', title:'목표 달성한 나를 상상하며 달리기', desc:'완주 또는 기록 향상으로 골인하는 나를 상상하며 달리기. 이 미션은 따로 인증하기 힘드니 미션 완료 표시만 해주세요~' },
+  { id:'visualize_goal', emoji:'🎯', title:'목표 달성한 나를 상상하며 달리기', desc:'완주 또는 기록 향상으로 골인하는 나를 상상하며 달리기. 이 미션은 사진으로 인증하기 어려우니 인증글 올리실 때 오늘의 다짐, 목표 등 한줄만 남겨주세요' },
 ];
 
 // 배열 순서(자리)가 아니라 미션 고유 id로 완료 기록을 저장/조회하기 위한 헬퍼.
@@ -427,88 +427,84 @@ function miniLogoHtml(){
   return `<img src="${LOGO_DATA_URI}" alt="TIMP" style="height:50px; width:auto; display:block;">`;
 }
 
-// 10K 훈련 프로그램 (세션1, 8/1~8/15)
+// 10K 훈련 프로그램 (세션2, 8/16~8/29)
 const TRAINING_10K = [
-  { week:1, date:'8/1 (토)', activity:'(3분 달리기 + 2분 걷기) × 5세트', desc:'- 준비 스트레칭 5분\n- (3분 달리기 + 2분 걷기) × 5세트\n- 정리 스트레칭' },
-  { week:1, date:'8/2 (일)', activity:'30분 걷기', desc:'30분 이상 산책' },
-  { week:1, date:'8/3 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:1, date:'8/4 (화)', activity:'(3분 달리기 + 2분 걷기) × 5세트', desc:'- 준비 스트레칭 5분\n- (3분 달리기 + 2분 걷기) × 5세트\n- 정리 스트레칭' },
-  { week:1, date:'8/5 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동: 스쿼트, 런지, 플랭크 등' },
-  { week:1, date:'8/6 (목)', activity:'(4분 달리기 + 2분 걷기) × 5세트', desc:'- 준비 스트레칭 5분\n- (4분 달리기 + 2분 걷기) × 5세트\n- 정리 스트레칭' },
-  { week:1, date:'8/7 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:1, date:'8/8 (토)', activity:'(4분 달리기 + 2분 걷기) × 7세트', desc:'- 준비 스트레칭 5분\n- (4분 달리기 + 2분 걷기) × 7세트\n- 정리 스트레칭' },
-  { week:1, date:'8/9 (일)', activity:'30분 걷기', desc:'30분 이상 산책' },
-  { week:2, date:'8/10 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:2, date:'8/11 (화)', activity:'(4분 뛰기 + 2분 걷기) × 5세트', desc:'- 준비 스트레칭 5분\n- (4분 달리기 + 2분 걷기) × 5세트\n- 정리 스트레칭' },
-  { week:2, date:'8/12 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동: 스쿼트, 런지, 플랭크 등' },
-  { week:2, date:'8/13 (목)', activity:'(4분 뛰기 + 2분 걷기) × 5세트', desc:'- 준비 스트레칭 5분\n- (4분 달리기 + 2분 걷기) × 5세트\n- 정리 스트레칭' },
-  { week:2, date:'8/14 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:2, date:'8/15 (토)', activity:'(5분 뛰기 + 2분 걷기) × 7세트', desc:'- 준비 스트레칭 5분\n- (5분 달리기 + 2분 걷기) × 7세트\n- 정리 스트레칭' },
+  { week:3, date:'8/16 (일)', activity:'30분 걷기', desc:'30분 이상 산책' },
+  { week:3, date:'8/17 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:3, date:'8/18 (화)', activity:'2km 조깅', desc:'- 준비 스트레칭 5분\n- 2km 가능한 연속으로 달리기\n- 정리 스트레칭' },
+  { week:3, date:'8/19 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동: 스쿼트, 런지, 플랭크 등' },
+  { week:3, date:'8/20 (목)', activity:'(5분 뛰기 + 2분 걷기) × 6세트', desc:'- 준비 스트레칭 5분\n- (5분 달리기 + 2분 걷기) × 6세트\n- 정리 스트레칭' },
+  { week:3, date:'8/21 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:3, date:'8/22 (토)', activity:'30분 조깅', desc:'- 준비 스트레칭 5분\n- 30분 가볍게 조깅(가능한 30분 연속으로 달리기)\n- 정리 스트레칭' },
+  { week:4, date:'8/23 (일)', activity:'30분 걷기', desc:'30분 이상 산책' },
+  { week:4, date:'8/24 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:4, date:'8/25 (화)', activity:'3km 조깅', desc:'- 준비 스트레칭 5분\n- 3km 가능한 연속으로 달리기\n- 정리 스트레칭' },
+  { week:4, date:'8/26 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동: 스쿼트, 런지, 플랭크 등' },
+  { week:4, date:'8/27 (목)', activity:'(6분 뛰기 + 2분 걷기) × 6세트', desc:'- 준비 스트레칭 5분\n- (6분 달리기 + 2분 걷기) × 6세트\n- 정리 스트레칭' },
+  { week:4, date:'8/28 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:4, date:'8/29 (토)', activity:'중간 점검! 5km 조깅', desc:'- 준비 스트레칭 5분\n- 가능한 5km 연속으로 달리기\n- 정리 스트레칭' },
 ];
 
-// 하프 마라톤 훈련 프로그램 (세션1, 8/1~8/15)
+// 하프 마라톤 훈련 프로그램 (세션2, 8/16~8/29)
 const TRAINING_HALF = [
-  { week:1, date:'8/1 (토)', activity:'3km 조깅', desc:'- 준비 스트레칭 5분\n- 3km 가볍게 달리기\n- 정리 스트레칭' },
-  { week:1, date:'8/2 (일)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:1, date:'8/3 (월)', activity:'4km 조깅', desc:'- 준비 스트레칭 5분\n- 4km 가볍게 달리기\n- 정리 스트레칭' },
-  { week:1, date:'8/4 (화)', activity:'휴식 또는 걷기', desc:'(선택)보강운동: 스쿼트, 런지, 플랭크 등' },
-  { week:1, date:'8/5 (수)', activity:'5km 조깅', desc:'- 준비 스트레칭 5분\n- 5km 가볍게 달리기\n- 정리 스트레칭' },
-  { week:1, date:'8/6 (목)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:1, date:'8/7 (금)', activity:'3km 조깅', desc:'- 준비 스트레칭 5분\n- 3km 가볍게 달리기\n- 정리 스트레칭' },
-  { week:1, date:'8/8 (토)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:1, date:'8/9 (일)', activity:'8km 조깅', desc:'- 준비 스트레칭 5분\n- 8km 가볍게 달리기\n- 정리 스트레칭' },
-  { week:2, date:'8/10 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:2, date:'8/11 (화)', activity:'4km 조깅', desc:'- 준비 스트레칭 5분\n- 4km 가볍게 달리기\n- 정리 스트레칭' },
-  { week:2, date:'8/12 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동: 스쿼트, 런지, 플랭크 등' },
-  { week:2, date:'8/13 (목)', activity:'4km 조깅', desc:'- 준비 스트레칭 5분\n- 4km 가볍게 달리기\n- 정리 스트레칭' },
-  { week:2, date:'8/14 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:2, date:'8/15 (토)', activity:'3km 조깅', desc:'- 준비 스트레칭 5분\n- 3km 가볍게 달리기\n- 정리 스트레칭' },
+  { week:3, date:'8/16 (일)', activity:'90분 조깅', desc:'- 준비 스트레칭 5분\n- 90분 가볍게 조깅(가능한 연속으로 달리기)\n- 정리 스트레칭' },
+  { week:3, date:'8/17 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:3, date:'8/18 (화)', activity:'7km 조깅', desc:'- 준비 스트레칭 5분\n- 7km 가볍게 조깅\n- 정리 스트레칭' },
+  { week:3, date:'8/19 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동: 스쿼트, 런지, 플랭크 등' },
+  { week:3, date:'8/20 (목)', activity:'조깅 30분 / 언덕 훈련 20분', desc:'- 준비 스트레칭 5분\n- 오르막 훈련전 30분 웜업으로 조깅\n- 경사가 있는 오르막 코스에서 20분 달리기\n- 오르막은 조금 빠르게 오르고 내리막은 가볍게 달리며 회복하세요\n- 정리 스트레칭' },
+  { week:3, date:'8/21 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:3, date:'8/22 (토)', activity:'3km 조깅', desc:'- 준비 스트레칭 5분\n- 3km 가볍게 달리기\n- 정리 스트레칭' },
+  { week:4, date:'8/23 (일)', activity:'12km 러닝(8km 템포런 포함)', desc:'- 준비 스트레칭 5분\n- 2km 웜업 → 8km(약간 힘들지만 짧은 문장은 가능한 속도) → 2km 쿨다운\n- 정리 스트레칭' },
+  { week:4, date:'8/24 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:4, date:'8/25 (화)', activity:'7km 조깅', desc:'- 준비 스트레칭 5분\n- 7km 가볍게 조깅\n- 정리 스트레칭' },
+  { week:4, date:'8/26 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동: 스쿼트, 런지, 플랭크 등' },
+  { week:4, date:'8/27 (목)', activity:'6km 조깅+질주 5회', desc:'- 준비 스트레칭 5분\n- 6km 가볍게 달리기 후 (80m 질주+걷기 회복)×5회\n- 정리 스트레칭' },
+  { week:4, date:'8/28 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:4, date:'8/29 (토)', activity:'3km 조깅', desc:'- 준비 스트레칭 5분\n- 3km 가볍게 달리기\n- 정리 스트레칭' },
 ];
 
-// 풀코스 마라톤 훈련 프로그램 (세션1, 8/1~8/15)
+// 풀코스 마라톤 훈련 프로그램 (세션2, 8/16~8/29)
 const TRAINING_FULL = [
-  { week:1, date:'8/1 (토)', activity:'5km 조깅', desc:'- 준비 스트레칭 5분\n- 5km 가볍게 달리기\n- 정리 스트레칭' },
-  { week:1, date:'8/2 (일)', activity:'10km 조깅', desc:'- 준비 스트레칭 5분\n- 10km 가볍게 달리기\n- 정리 스트레칭' },
-  { week:1, date:'8/3 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:1, date:'8/4 (화)', activity:'6km 조깅 후 질주 5회', desc:'- 준비 스트레칭 5분\n- 6km조깅 -> [50m 질주(70%) + 걷기 회복] x 5회\n- 정리 스트레칭' },
-  { week:1, date:'8/5 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동 하체 : 스쿼트, 런지' },
-  { week:1, date:'8/6 (목)', activity:'10km 조깅', desc:'- 준비 스트레칭 5분\n- 10km 가볍게 달리기\n- 정리 스트레칭' },
-  { week:1, date:'8/7 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:1, date:'8/8 (토)', activity:'5km 조깅', desc:'- 준비 스트레칭 5분\n- 5km 가볍게 달리기\n- 정리 스트레칭' },
-  { week:1, date:'8/9 (일)', activity:'13km 조깅', desc:'- 준비 스트레칭 5분\n- 13km 달리기\n- 정리 스트레칭' },
-  { week:2, date:'8/10 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:2, date:'8/11 (화)', activity:'언덕 훈련 30분', desc:'- 준비 스트레칭 5분\n- 경사가 있는 오르막 코스에서 30분간 달리기\n- 오르막은 조금 빠르게 오르고 내리막은 가볍게 달리며 회복하세요\n- 정리 스트레칭' },
-  { week:2, date:'8/12 (수)', activity:'휴식 또는 걷기', desc:'(선택)보강운동 코어 : 플랭크' },
-  { week:2, date:'8/13 (목)', activity:'10km 조깅', desc:'- 준비 스트레칭 5분\n- 10km 가볍게 달리기\n- 정리 스트레칭' },
-  { week:2, date:'8/14 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:2, date:'8/15 (토)', activity:'5km 조깅', desc:'- 준비 스트레칭 5분\n- 5km 가볍게 달리기\n- 정리 스트레칭' },
+  { week:3, date:'8/16 (일)', activity:'15km 조깅', desc:'- 준비 스트레칭 5분\n- 15km 달리기\n- 정리 스트레칭' },
+  { week:3, date:'8/17 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:3, date:'8/18 (화)', activity:'조깅 30분 + 언덕 훈련 20분', desc:'- 준비 스트레칭 5분\n- 오르막 훈련전 30분 웜업으로 조깅\n- 경사가 있는 오르막 코스에서 20분 달리기\n- 오르막은 조금 빠르게 오르고 내리막은 가볍게 달리며 회복하세요\n- 정리 스트레칭' },
+  { week:3, date:'8/19 (수)', activity:'근력운동', desc:'스쿼트, 런지, 플랭크 등' },
+  { week:3, date:'8/20 (목)', activity:'30분 조깅', desc:'- 준비 스트레칭 5분\n- 30분 가볍게 달리기\n- 정리 스트레칭' },
+  { week:3, date:'8/21 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:3, date:'8/22 (토)', activity:'5km 조깅 + 질주 3회', desc:'- 준비 스트레칭 5분\n- 5km 가볍게 달리기\n- (100m 질주 + 100m 회복) X 3세트\n- 정리 스트레칭' },
+  { week:4, date:'8/23 (일)', activity:'17km 조깅', desc:'- 준비 스트레칭 5분\n- 17km 달리기\n- 정리 스트레칭\n달리기와 걷기를 조합해도 괜찮아요' },
+  { week:4, date:'8/24 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:4, date:'8/25 (화)', activity:'25분 조깅', desc:'- 준비 스트레칭 5분\n- 25분 가볍게 달리기\n- 정리 스트레칭' },
+  { week:4, date:'8/26 (수)', activity:'근력운동', desc:'스쿼트, 런지, 플랭크 등' },
+  { week:4, date:'8/27 (목)', activity:'13km 러닝(템포런 10km)', desc:'- 준비 스트레칭 5분\n- 1.5km 웜업 → 10km 약간 힘들지만 짧은 문장은 가능한 속도 → 1.5km 쿨다운\n- 정리 스트레칭' },
+  { week:4, date:'8/28 (금)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
+  { week:4, date:'8/29 (토)', activity:'20분 조깅', desc:'- 준비 스트레칭 5분\n- 20분 가볍게 달리기\n- 정리 스트레칭' },
 ];
 
 // 세 훈련 프로그램을 공통 화면에서 재사용하기 위한 메타 정보
-// 풀코스 기록반 세션1 (세션1, 8/1~8/15) — 완주 경험자를 위한 기록 향상 플랜
+// 풀코스 기록반 (세션2, 8/16~8/29) — 완주 경험자를 위한 기록 향상 플랜
 const TRAINING_FULL_RECORD = [
-  { week:1, date:'8/1 (토)', activity:'조깅 30분 + 질주 5회', desc:'- 준비 스트레칭 5분\n- 조깅 30분 달리기\n- [70~80m 질주 + 걷기 회복] X 5회\n- 정리 스트레칭' },
-  { week:1, date:'8/2 (일)', activity:'조깅 15km (빌드업)', desc:'- 준비 스트레칭 5분\n- 조깅 10km (MP+60~90초, 편안하게 시작)\n- 목표 페이스(MP) 유지 3km (레이스 페이스 감각 훈련)\n- 마무리 2km (MP-10초, 속도 올리되 무리하지 않기)\n- 정리 스트레칭' },
-  { week:1, date:'8/3 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:1, date:'8/4 (화)', activity:'인터벌 400m/200m 8세트', desc:'- 준비 스트레칭 5분\n- 워밍업 조깅 20분\n- 인터벌 [400m(MP-20초) + 200m 회복] X 8회\n- 쿨다운 조깅 20분\n- 정리 스트레칭' },
-  { week:1, date:'8/5 (수)', activity:'회복조깅 40분', desc:'- 준비 스트레칭 5분\n- 회복조깅 40분\n- 정리 스트레칭' },
-  { week:1, date:'8/6 (목)', activity:'템포런 5km', desc:'- 준비 스트레칭 5분\n- 워밍업 조깅 20분\n- 템포런 5km(MP-10초)\n- 회복조깅 1km\n- 정리 스트레칭' },
-  { week:1, date:'8/7 (금)', activity:'조깅 40분', desc:'- 준비 스트레칭 5분\n- 조깅 40분\n- 정리 스트레칭' },
-  { week:1, date:'8/8 (토)', activity:'휴식과 스트레칭', desc:'휴식과 스트레칭' },
-  { week:1, date:'8/9 (일)', activity:'조깅 16km (빌드업)', desc:'- 준비 스트레칭 5분\n- 조깅 11km (MP+60~90초, 편안하게 시작)\n- 목표 페이스(MP) 유지 3km (레이스 페이스 감각 훈련)\n- 마무리 2km (MP-5~10초, 속도 올리되 무리하지 않기)\n- 정리 스트레칭' },
-  { week:2, date:'8/10 (월)', activity:'휴식 또는 걷기', desc:'휴식 또는 걷기' },
-  { week:2, date:'8/11 (화)', activity:'언덕훈련(업힐) 100m 8세트', desc:'- 준비 스트레칭 5분\n- 워밍업 조깅 20분\n- 업힐 100m(80% 파워) + 조깅 회복 X 8회\n- 쿨다운 조깅 20분\n- 정리 스트레칭' },
-  { week:2, date:'8/12 (수)', activity:'회복조깅 40분', desc:'- 준비 스트레칭 5분\n- 회복조깅 40분\n- 정리 스트레칭' },
-  { week:2, date:'8/13 (목)', activity:'템포런 5km', desc:'- 준비 스트레칭 5분\n- 워밍업 조깅 20분\n- 템포런 5km(MP-10초)\n- 회복조깅 1km\n- 정리 스트레칭' },
-  { week:2, date:'8/14 (금)', activity:'조깅 40분', desc:'- 준비 스트레칭 5분\n- 조깅 40분\n- 정리 스트레칭' },
-  { week:2, date:'8/15 (토)', activity:'휴식과 스트레칭', desc:'휴식과 스트레칭' },
+  { week:3, date:'8/16 (일)', activity:'빌드업 18km', desc:'- 준비 스트레칭 5분\n- 3km마다 10초씩 페이스업\n- 예: 서브4는 540으로 330은 450으로 마무리\n- 정리 스트레칭' },
+  { week:3, date:'8/17 (월)', activity:'휴식과 스트레칭', desc:'휴식과 스트레칭' },
+  { week:3, date:'8/18 (화)', activity:'인터벌 300m/100m 10세트', desc:'- 준비 스트레칭 5분\n- 워밍업 조깅 15분\n- 인터벌 [300m(MP-25초) + 100m 회복조깅] X 10회\n- 쿨다운 조깅 10분\n- 정리 스트레칭' },
+  { week:3, date:'8/19 (수)', activity:'회복조깅 60분', desc:'- 준비 스트레칭 5분\n- 회복조깅 60분 (MP+90~120초)\n- 정리 스트레칭' },
+  { week:3, date:'8/20 (목)', activity:'조깅 10km', desc:'- 준비 스트레칭 5분\n- 조깅 10km (MP+60초)\n- 정리 스트레칭' },
+  { week:3, date:'8/21 (금)', activity:'템포런 5km', desc:'- 준비 스트레칭 5분\n- 워밍업 조깅 15분\n- 템포런 5km (MP-10초)\n- 쿨다운 조깅 10분\n- 정리 스트레칭' },
+  { week:3, date:'8/22 (토)', activity:'휴식과 스트레칭', desc:'휴식과 스트레칭' },
+  { week:4, date:'8/23 (일)', activity:'빌드업 24km', desc:'- 준비 스트레칭 5분\n- 3km마다 10초씩 페이스업\n- 예: 서브4는 540으로 330은 450으로 마무리\n- 정리 스트레칭' },
+  { week:4, date:'8/24 (월)', activity:'휴식과 스트레칭', desc:'휴식과 스트레칭' },
+  { week:4, date:'8/25 (화)', activity:'인터벌 400m/200m 8세트', desc:'- 준비 스트레칭 5분\n- 워밍업 조깅 15분\n- 인터벌 [400m (MP-20초) + 200m 회복] X 8회\n- 쿨다운 조깅 10분\n- 정리 스트레칭' },
+  { week:4, date:'8/26 (수)', activity:'회복조깅 60분', desc:'- 준비 스트레칭 5분\n- 회복조깅 60분 (MP+90~120초)\n- 정리 스트레칭' },
+  { week:4, date:'8/27 (목)', activity:'조깅 50분', desc:'- 준비 스트레칭 5분\n- 조깅 50분 (MP+60초)\n- 정리 스트레칭' },
+  { week:4, date:'8/28 (금)', activity:'변속주 30분', desc:'- 준비 스트레칭 5분\n- [1분 빠르게 (MP-15초) + 2분 조깅] 30분 동안 반복\n- 정리 스트레칭' },
+  { week:4, date:'8/29 (토)', activity:'휴식과 스트레칭', desc:'휴식과 스트레칭' },
 ];
 
 const TRAINING_PROGRAMS = {
-  training10k: { data: TRAINING_10K, title: '👟 첫 10K 도전', subtitle: '8/1 ~ 8/15 · 세션1' },
-  trainingHalf: { data: TRAINING_HALF, title: '🏃 첫 하프 마라톤', subtitle: '8/1 ~ 8/15 · 세션1' },
-  trainingFull: { data: TRAINING_FULL, title: '🏃\u200d♂️ 첫 풀코스 완주', subtitle: '8/1 ~ 8/15 · 세션1' },
-  trainingFullRecord: { data: TRAINING_FULL_RECORD, title: '📈 풀코스 기록반', subtitle: '8/1 ~ 8/15 · 세션1' },
+  training10k: { data: TRAINING_10K, title: '👟 첫 10K 도전', subtitle: '8/16 ~ 8/29 · 세션2' },
+  trainingHalf: { data: TRAINING_HALF, title: '🏃 첫 하프 마라톤', subtitle: '8/16 ~ 8/29 · 세션2' },
+  trainingFull: { data: TRAINING_FULL, title: '🏃\u200d♂️ 첫 풀코스 완주', subtitle: '8/16 ~ 8/29 · 세션2' },
+  trainingFullRecord: { data: TRAINING_FULL_RECORD, title: '📈 풀코스 기록반', subtitle: '8/16 ~ 8/29 · 세션2' },
 };
 
 // 각 훈련 프로그램 안내문 (진행률 카드 아래 '여기를 먼저 눌러주세요' 버튼에서 표시)
@@ -516,7 +512,8 @@ const PROGRAM_GUIDES = {
   training10k: {
     title: '👟 10K 도전 안내',
     paragraphs: [
-      '이 프로그램은 10km 첫 완주를 목표로 하는 플랜이에요. 달리기를 시작한 누구나 이 훈련을 통해 10km를 완주할 수 있도록 도와줄 거예요.\n\n세션1 <기초를 다지는 구간>\n달리기와 걷기를 번갈아 하며 몸이 뛰는 움직임 자체에 익숙해지는 시간이에요. 분량을 다 못 채워도 괜찮으니, 완벽하게 하려 하지 말고 꾸준히 나가는 것부터 시작해보세요.',
+      '이 프로그램은 10km 첫 완주를 목표로 하는 플랜이에요. 달리기를 시작한 누구나 이 훈련을 통해 10km를 완주할 수 있도록 도와줄 거예요.',
+      '세션2 <연속으로 달리는 시간이 늘어나는 구간>\n이제부터는 짧은 거리부터 쉬지 않고 달려보는 연습을 시작합니다. 4주차 8/29에는 중간 점검으로 5km를 달려보는 도전이 있어요. 몸이 "오래 버티는 감각"을 익히는 게 이 단계의 목표입니다.',
     ],
     bullets: [
       '각 날짜를 누르면 자세한 훈련 설명을 볼 수 있어요.',
@@ -529,7 +526,8 @@ const PROGRAM_GUIDES = {
   trainingHalf: {
     title: '🏃 하프 마라톤 안내',
     paragraphs: [
-      '이 프로그램은 하프 마라톤 첫 완주를 목표로 하는 플랜이에요. 10km를 완주해 본 러너라면, 이 훈련을 통해 하프 마라톤까지 완주할 수 있도록 도와줄 거예요.\n\n세션1 <기초를 다지는 구간>\n하프 완주를 향한 첫걸음으로 몸이 달리기에 익숙하게 만드는 시간입니다. 페이스는 신경 쓰지 말고, 옆 사람과 편하게 대화 나눌 수 있는 정도로만 달려보세요. 세션2부터 포인트 훈련이 있으니 조급해하지 마시고 주어진 미션을 수행 해 보세요.',
+      '이 프로그램은 하프 마라톤 첫 완주를 목표로 하는 플랜이에요. 10km를 완주해 본 러너라면, 이 훈련을 통해 하프 마라톤까지 완주할 수 있도록 도와줄 거예요.',
+      '세션2 <포인트 훈련이 시작되는 구간>\n이제부터 언덕훈련과 템포런으로 몸에 자극을 주기 시작해요. 템포런은 "약간 힘들지만 짧은 문장은 가능한 속도"가 목표 강도예요. 살짝 힘든 페이스를 유지하는 연습이라고 생각하시면 됩니다. 언덕훈련이 낯설다면 오르막에서 무리하지 말고, 내리막에서 충분히 숨을 고르며 회복하세요.',
     ],
     bullets: [
       '각 날짜를 누르면 자세한 훈련 설명을 볼 수 있어요.',
@@ -542,7 +540,8 @@ const PROGRAM_GUIDES = {
   trainingFull: {
     title: '🏃\u200d♂️ 첫 풀코스 완주 안내',
     paragraphs: [
-      '이 프로그램은 풀코스 첫 완주를 목표로 하는 플랜이에요. 하프 마라톤을 완주해 본 러너라면, 이 훈련을 통해 풀코스까지 완주할 수 있도록 도와줄 거예요.\n\n세션1 <기초를 다지는 구간>\n몸이 달리는 리듬에 익숙해지는 시간입니다. 짧은 질주와 언덕훈련이 있지만 강한 자극이 아니라 워밍업 개념이니, 무리하지 말고 페이스보다 완주에 집중하세요.',
+      '이 프로그램은 풀코스 첫 완주를 목표로 하는 플랜이에요. 하프 마라톤을 완주해 본 러너라면, 이 훈련을 통해 풀코스까지 완주할 수 있도록 도와줄 거예요.',
+      '세션2 <속도 자극과 첫 장거리 관문을 넘는 구간>\n언덕훈련에 템포런까지 더해지면서 강도가 한 단계 올라가요. 템포런은 "약간 힘들지만 짧은 문장은 가능한 속도"가 목표 강도예요. 살짝 힘든 페이스를 유지하는 연습이니 부담 갖지 마세요. 장거리도 15km → 17km로 조금씩 늘어나는 구간이니, 다음 세션에서 만날 20km LSD를 위한 몸 만들기라고 생각하시면 됩니다.',
     ],
     bullets: [
       '각 날짜를 누르면 자세한 훈련 설명을 볼 수 있어요.',
@@ -556,7 +555,7 @@ const PROGRAM_GUIDES = {
     title: '📈 풀코스 기록반 안내',
     paragraphs: [
       '이 프로그램은 풀코스 기록 향상을 목표로 하는 플랜이에요. 이미 풀코스 완주 경험이 있으신 분들이 대상이며, 자신의 페이스에 맞게 적용해 훈련하시면 돼요.',
-      '세션1 <기초를 다지는 구간>\n몸이 달리는 리듬에 익숙해지는 시간이에요. 질주와 언덕훈련은 워밍업 개념이니 무리하지 마세요. 장거리런은 조깅 → MP → 마무리 순서의 빌드업 구조로 진행돼요. 처음부터 MP를 맞추려 하지 말고 천천히 끌어올린다는 느낌으로 뛰어보세요.',
+      '세션2 <속도 자극과 첫 장거리 관문을 넘는 구간>\n템포런, 인터벌, 빌드업 LSD가 모두 들어가며 강도가 올라갑니다. 변속주도 새로 추가되었고, 변속주는 페이스가 흔들릴 때 다시 리듬을 잡는 능력을 키울 수 있습니다. 또 4주차에는 24km 빌드업 LSD가 있습니다.',
     ],
     bullets: [
       '각 날짜를 누르면 자세한 훈련 설명을 볼 수 있어요.',
@@ -761,7 +760,7 @@ function scheduleCloudSync(){
         await window.__fb.setDoc(ref, { ...rest, updatedAt: window.__fb.serverTimestamp() }, { merge:true });
       }catch(e){ console.warn('cloud 동기화 실패:', e); }
     })();
-  }, 7000); // 7초 안에 몰리는 저장은 한 번으로 묶어서 쓰기 횟수를 크게 줄인다
+  }, 2000); // 2초 안에 몰리는 저장은 한 번으로 묶어서 쓰기 횟수를 줄인다
 }
 
 // 닉네임+PIN으로 클라우드에서 기록을 찾아 복구한다. 성공 시 정규화된 state 객체, 실패 시 null.
@@ -792,29 +791,6 @@ function ensureDailyRollsFresh(){
 function getRollsLeft(){
   ensureDailyRollsFresh();
   return Math.max(0, MAX_ROLLS_PER_DAY - state.dailyRolls.count);
-}
-
-/* =========================================================
-   관리자 모드 (닉네임 타이틀을 짧은 시간 안에 5번 연속 탭)
-   ========================================================= */
-let adminTapCount = 0;
-let adminTapTimer = null;
-const ADMIN_TAP_TARGET = 5;
-const ADMIN_TAP_WINDOW = 700; // ms
-
-function handleAdminTap(){
-  adminTapCount++;
-  if(adminTapTimer) clearTimeout(adminTapTimer);
-  adminTapTimer = setTimeout(()=>{ adminTapCount = 0; }, ADMIN_TAP_WINDOW);
-
-  if(adminTapCount >= ADMIN_TAP_TARGET){
-    adminTapCount = 0;
-    clearTimeout(adminTapTimer);
-    state.adminMode = !state.adminMode;
-    saveState(state);
-    showToast(state.adminMode ? '🔓 관리자 모드 ON — 주사위 무제한' : '🔒 관리자 모드 OFF', 1800);
-    renderGame();
-  }
 }
 
 let state = loadState();
@@ -1102,7 +1078,7 @@ function renderTrainingProgram(programKey){
   const days = program.data;
   const checks = state[programKey];
   const doneCount = days.filter((_,i)=> !!checks[i]).length;
-  const weeks = [1, 2];
+  const weeks = [3, 4];
 
   const weekHtml = weeks.map(w=>{
     const rows = days.map((day, i)=>{
@@ -1322,10 +1298,11 @@ function renderGame(){
         <button id="marble-back-btn" title="뒤로가기" class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
           style="background:var(--bg-elev); border:1px solid var(--line); color:var(--text-dim);">←</button>
         ${miniLogoHtml()}
-        <div class="w-9"></div>
+        <button id="marble-refresh-btn" title="최신 정보 확인하기" class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+          style="background:var(--bg-elev); border:1px solid var(--line); color:var(--text-dim);">⟳</button>
       </div>
       <h1 id="dashboard-title" class="font-display text-lg font-bold text-center mb-8" style="user-select:none;">
-        <span class="sunset-text">${escapeHtml(state.nickname)}</span>의 러닝마블
+        <span class="sunset-text">${escapeHtml(state.nickname)}</span>의 러닝마블 <span style="color:var(--text-dim); font-size:0.7em;">세션2</span>
       </h1>
 
       <button id="marble-guide-btn" type="button" class="w-full mb-4 py-2.5 rounded-xl text-xs font-bold"
@@ -1351,10 +1328,10 @@ function renderGame(){
         <div id="token"><div id="token-glow"></div><span style="position:relative;z-index:1;">🏃</span></div>
 
         <div id="board-help" style="position:absolute; left:50%; top:135%; transform:translate(-50%,-50%); width:80%; z-index:3; text-align:center;">
-          <p class="text-[10px]" style="color:var(--text-dim);">⚠️러닝마블은 하나의 탭에서만 진행해주세요<br>(동시에 여러 탭 사용 시 기록이 꼬일 수 있어요)</p>
-          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">📌각 이모티콘을 누르면 미션을 확인할 수 있어요</p>
-          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🎲주사위는 하루에 1번만 굴릴 수 있어요</p>
-          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏁 START를 밟거나 지나치면 주사위 보너스 +1</p>
+          <p class="text-[10px]" style="color:var(--text-dim);">러닝마블은 하나의 탭에서만 진행해주세요<br>(동시에 여러 탭 사용 시 기록이 꼬일 수 있어요)</p>
+          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">각 이모티콘을 누르면 미션을 확인할 수 있어요</p>
+          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">주사위는 하루에 1번만 굴릴 수 있어요</p>
+          <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏁 START를 밟거나 지나치면 주사위보너스 +1</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">(보너스 주사위로 하루에 2회 이상 미션을 할 수 있어요)</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">❓물음표는 7가지 이벤트가 랜덤으로 나와요</p>
           <p class="text-[10px] mt-1" style="color:var(--text-dim); white-space:nowrap;">🏝️ 무인도는 3번 안에 더블이 나와야 탈출해요</p>
@@ -1403,8 +1380,8 @@ function renderGame(){
 
   const rollBtn = document.getElementById('roll-btn');
   if(rollBtn) rollBtn.addEventListener('click', handleRollClick);
-  document.getElementById('dashboard-title').addEventListener('click', handleAdminTap);
   document.getElementById('marble-back-btn').addEventListener('click', goToHub);
+  document.getElementById('marble-refresh-btn').addEventListener('click', handleManualRefresh);
   document.getElementById('marble-guide-btn').addEventListener('click', openMarbleGuide);
 }
 
@@ -1600,7 +1577,8 @@ async function syncRollAvailabilityFromCloud(){
     const cloudData = snap.data();
     if(cloudData.dailyRolls && cloudData.dailyRolls.date === getTodayStr()){
       const cloudCount = cloudData.dailyRolls.count || 0;
-      if(cloudCount > (state.dailyRolls.count || 0)){
+      const localCount = (state.dailyRolls && state.dailyRolls.date === getTodayStr()) ? (state.dailyRolls.count || 0) : 0;
+      if(cloudCount > localCount){
         state.dailyRolls = { date: getTodayStr(), count: cloudCount };
       }
     }
@@ -1614,7 +1592,7 @@ async function syncRollAvailabilityFromCloud(){
 async function onRoll(){
   if(isRolling) return;
   if(!state.adminMode && getTodayStr() < CAMPAIGN_START_DATE){
-    showToast('🗓️ 러닝마블은 8월 1일부터 시작할 수 있어요');
+    showToast('🗓️ 러닝마블은 8월 16일부터 시작할 수 있어요');
     return;
   }
 
@@ -2215,9 +2193,12 @@ async function reconcileWithCloud(){
     const cloudData = snap.data();
     let changed = false;
 
+    let progressAheadOnCloud = false; // 클라우드가 점수/미션기록 면에서 이 기기보다 실제로 앞서있는지
+
     if(typeof cloudData.score === 'number' && cloudData.score > (state.score || 0)){
       state.score = cloudData.score;
       changed = true;
+      progressAheadOnCloud = true;
     }
 
     const cloudLevels = (cloudData.levels && typeof cloudData.levels === 'object') ? cloudData.levels : {};
@@ -2228,14 +2209,16 @@ async function reconcileWithCloud(){
         if(!state.levels) state.levels = {};
         state.levels[missionId] = cloudVal;
         changed = true;
+        progressAheadOnCloud = true;
       }
     });
 
-    // 말의 위치(position)도 클라우드 기준으로 맞춘다.
-    // (이 함수는 페이지를 막 열었을 때 딱 한 번만 실행되고, 그 시점엔 이 기기에서 아직
-    // 새로 움직인 게 없으니 클라우드 값을 그대로 믿어도 안전하다 — 다른 기기에서 더 최근에
-    // 주사위를 굴렸다면 그 위치가 곧 가장 최신 위치이기 때문)
-    if(typeof cloudData.position === 'number' && cloudData.position !== state.position){
+    // 말의 위치(position)는 '클라우드가 점수/기록 면에서 실제로 더 앞서있을 때만' 따라간다.
+    // (단순히 "클라우드 값이 다르면 무조건" 바꾸면, 이 기기에서 방금 주사위를 굴렸는데
+    // 아직 클라우드에 반영이 안 된 시점에 새로고침했을 때 오히려 방금 굴린 위치가
+    // 예전(출발지) 위치로 잘못 되돌아가는 사고가 난다 — 그걸 막기 위한 조건이다.
+    // 진짜로 다른 기기에서 더 진행된 경우엔 점수/기록이 이미 앞서있을 것이므로 안전하다.)
+    if(progressAheadOnCloud && typeof cloudData.position === 'number' && cloudData.position !== state.position){
       state.position = cloudData.position;
       changed = true;
     }
@@ -2283,7 +2266,37 @@ async function reconcileWithCloud(){
       saveState(state);
       if(currentView === 'hub' || currentView === 'marble') render();
     }
-  }catch(e){ console.warn('cloud 보정 확인 실패:', e); }
+    return changed;
+  }catch(e){
+    console.warn('cloud 보정 확인 실패:', e);
+    return null; // 확인 자체가 실패한 경우(네트워크 오류 등)
+  }
+}
+
+// '새로고침' 버튼을 눌렀을 때: 화면을 통째로 다시 불러오지 않고,
+// 클라우드 보정만 다시 실행해서 부드럽게 최신 상태로 맞춘다.
+async function handleManualRefresh(){
+  const btn = document.getElementById('marble-refresh-btn');
+  if(!btn || btn.disabled) return;
+  btn.disabled = true;
+  btn.style.opacity = '.5';
+  const ready = await waitForFirebaseReady(3000);
+  if(!ready){
+    showToast('⚠️ 네트워크 연결을 확인해주세요');
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    return;
+  }
+  const result = await reconcileWithCloud();
+  if(result === true){
+    showToast('✅ 최신 정보로 업데이트했어요');
+  } else if(result === false){
+    showToast('이미 최신 상태예요');
+  } else {
+    showToast('⚠️ 확인 중 문제가 생겼어요, 잠시 후 다시 시도해주세요');
+  }
+  btn.disabled = false;
+  btn.style.opacity = '1';
 }
 
 // Firebase는 <script type="module">로 비동기 로드되기 때문에, 페이지가 막 열린 시점엔
