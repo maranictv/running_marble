@@ -1660,6 +1660,7 @@ async function onRoll(){
   }
 
   isRolling = true; // 아래 클라우드 확인하는 동안에도 중복 클릭 막기
+  setBackButtonLocked(true); // 주사위 굴리는 동안엔 뒤로가기로 못 나가게 막는다 (애니메이션 중간에 나가면 위치 저장이 안 될 수 있음)
   if(!state.adminMode){
     await syncRollAvailabilityFromCloud();
   }
@@ -1667,12 +1668,14 @@ async function onRoll(){
   const hasBonus = (state.bonusRolls || 0) > 0;
   if(!state.adminMode && getRollsLeft() <= 0 && !hasBonus){
     isRolling = false;
+    setBackButtonLocked(false);
     showToast('오늘 주사위를 모두 사용했어요! 내일 다시 도전해보세요');
     return;
   }
   const validRolls = getValidRolls();
   if(validRolls.length === 0){
     isRolling = false;
+    setBackButtonLocked(false);
     alert('지금 위치에서는 이동할 수 있는 칸이 없어요. 잠시 후 다시 시도해주세요!');
     return;
   }
@@ -1702,9 +1705,20 @@ async function onRoll(){
     saveState(state);
     moveToken(result, ()=>{
       isRolling = false;
+      setBackButtonLocked(false);
       renderGame();
     });
   }, 1500);
+}
+
+// 주사위 굴리기/이동/도착 처리가 끝날 때까지 뒤로가기 버튼을 잠가서,
+// 애니메이션 도중 페이지를 나가버려서 위치 저장이 안 되는 사고를 막는다.
+function setBackButtonLocked(locked){
+  const btn = document.getElementById('marble-back-btn');
+  if(!btn) return;
+  btn.disabled = locked;
+  btn.style.opacity = locked ? '.4' : '1';
+  btn.style.cursor = locked ? 'not-allowed' : 'pointer';
 }
 
 function moveToken(steps, onDone){
