@@ -734,16 +734,38 @@ async function cloudCreateInitial(st){
 // score/특정 미션 레벨(levels.미션id)처럼 '더하기'로만 안전하게 반영해야 하는 값들을 increment로 보낸다.
 async function cloudIncrement(fields){
   if(!window.__fb || !state || !state.nickname || !state.pin) return;
+  const ref = cloudDocRef(state.nickname, state.pin);
+  if(!ref) return;
+  const buildUpdateObj = ()=>{
+    const obj = { updatedAt: window.__fb.serverTimestamp() };
+    Object.entries(fields).forEach(([k,v])=>{ obj[k] = window.__fb.increment(v); });
+    return obj;
+  };
+  try{
+    await window.__fb.updateDoc(ref, buildUpdateObj());
+  }catch(e){
+    // 문서가 아직 없으면 updateDoc이 실패한다. 이때 절대로 score/levels를 '통짜 값'으로 다시 쓰면 안 된다
+    // (가입 직후 빠르게 여러 미션을 연달아 완료하면, 이 복구 시도끼리 순서가 꼬여서
+    //  나중에 완료한 게 먼저 완료한 것보다 더 늦게 저장되며 서로 덮어써버리는 사고가 날 수 있다).
+    // 그래서 score/levels는 아예 건드리지 않는 '뼈대'만 먼저 만들고, 원래 하려던 increment를 다시 시도한다.
+    try{
+      const { score, levels, bonusRolls, ...rest } = state;
+      await window.__fb.setDoc(ref, { ...rest, updatedAt: window.__fb.serverTimestamp() }, { merge:true });
+      await window.__fb.updateDoc(ref, buildUpdateObj());
+    }catch(e2){ console.warn('cloud 증분 재시도 실패:', e2); }
+  }
+}
+
+// 말의 위치(position)는 다른 값들과 달리 디바운스 없이 '즉시' 저장한다.
+// (도착하자마자 뒤로가기를 누르거나 앱을 나가는 경우가 흔해서, 몇 초라도 미루면
+//  자주 유실되는 값이라 — 위치가 확정되는 그 순간 바로 클라우드에 반영한다)
+async function cloudSyncPositionNow(){
+  if(!window.__fb || !state || !state.nickname || !state.pin) return;
   try{
     const ref = cloudDocRef(state.nickname, state.pin);
     if(!ref) return;
-    const updateObj = { updatedAt: window.__fb.serverTimestamp() };
-    Object.entries(fields).forEach(([k,v])=>{ updateObj[k] = window.__fb.increment(v); });
-    await window.__fb.updateDoc(ref, updateObj);
-  }catch(e){
-    // 문서가 아직 없으면 updateDoc이 실패하니, 그럴 땐 초기 스냅샷부터 만들어준다.
-    cloudCreateInitial(state).catch(()=>{});
-  }
+    await window.__fb.setDoc(ref, { position: state.position, updatedAt: window.__fb.serverTimestamp() }, { merge:true });
+  }catch(e){ console.warn('cloud 위치 저장 실패:', e); }
 }
 
 // score/levels를 제외한 나머지 필드(위치, 체크리스트 등)는 몇 초에 한 번씩 모아서 통짜로 백업.
@@ -900,12 +922,29 @@ function renderOnboarding(){
   const pinInput = document.getElementById('pin-input');
   const goalInput = document.getElementById('goal-input');
   const btn = document.getElementById('start-btn');
-  const submit = ()=>{
+  const submit = async ()=>{
     const nickVal = nicknameInput.value.trim();
     const pinVal = pinInput.value.trim();
     const goalVal = goalInput.value.trim();
     if(!nickVal){ nicknameInput.focus(); nicknameInput.style.borderColor = 'var(--sunset-1)'; return; }
     if(!/^\d{4}$/.test(pinVal)){ pinInput.focus(); pinInput.style.borderColor = 'var(--sunset-1)'; return; }
+
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = '확인 중...';
+
+    // 같은 닉네임+코드로 이미 진행 중인 기록이 있는지 먼저 확인한다.
+    // (참가자가 실수로 또는 습관적으로 '시작하기'를 다시 눌러도, 기존 기록이 지워지지 않고
+    //  자동으로 이어서 하도록 하기 위한 안전장치)
+    const existing = await cloudFetchByNicknamePin(nickVal, pinVal);
+    if(existing){
+      state = existing;
+      saveState(state);
+      showToast('☁️ 기존 기록을 불러왔어요');
+      render();
+      return;
+    }
+
     state = freshState(nickVal, goalVal, pinVal);
     saveState(state);
     cloudCreateInitial(state); // 최초 1회이므로 통짜로 저장해도 안전함
@@ -1707,6 +1746,7 @@ function resolveLanding(index, depth, onFinalDone){
   state.position = index;
   state.completionUsed = false; // 새로 도착했으니 이번 칸에서 완료 기회를 다시 준다
   saveState(state);
+  cloudSyncPositionNow(); // 위치는 디바운스 없이 바로 클라우드에 반영
   renderCells();
 
   const mission = MISSIONS[index];
